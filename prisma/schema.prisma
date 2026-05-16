@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Garden {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  plants      Plant[]
+}
+
+model Plant {
+  id        Int      @id @default(autoincrement())
+  name      String
+  species   String?
+  plantedAt DateTime @default(now())
+  notes     String?
+  gardenId  Int
+  garden    Garden   @relation(fields: [gardenId], references: [id], onDelete: Cascade)
+}
