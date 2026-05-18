@@ -35,12 +35,9 @@ const config: ForgeConfig = {
           target: 'preload',
         },
       ],
-      renderer: [
-        {
-          name: 'main_window',
-          config: 'vite.renderer.config.ts',
-        },
-      ],
+      // Angular gère son propre dev server (ng serve sur :4200)
+      // et son propre build (ng build → renderer/dist/)
+      renderer: [],
     }),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application

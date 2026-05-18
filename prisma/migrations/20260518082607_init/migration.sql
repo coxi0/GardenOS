@@ -1,0 +1,18 @@
+-- CreateTable
+CREATE TABLE "Garden" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "Plant" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "species" TEXT,
+    "plantedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "notes" TEXT,
+    "gardenId" INTEGER NOT NULL,
+    CONSTRAINT "Plant_gardenId_fkey" FOREIGN KEY ("gardenId") REFERENCES "Garden" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

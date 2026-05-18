@@ -6,6 +6,11 @@
   "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
+    "dev": "concurrently -k -n \"ANGULAR,ELECTRON\" -c \"cyan,green\" \"npm run dev:angular\" \"npm run dev:electron\"",
+    "dev:angular": "npm start --prefix renderer",
+    "dev:electron": "wait-on http://localhost:4200 && electron-forge start",
+    "build": "npm run build:angular && electron-forge package",
+    "build:angular": "npm run build --prefix renderer",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -31,11 +36,13 @@
     "@types/electron-squirrel-startup": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "concurrently": "^9.2.1",
     "electron": "42.0.1",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
     "typescript": "~4.5.4",
-    "vite": "^5.4.21"
+    "vite": "^5.4.21",
+    "wait-on": "^9.0.10"
   },
   "dependencies": {
     "@prisma/client": "^7.8.0",
