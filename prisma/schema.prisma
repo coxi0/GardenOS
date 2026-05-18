@@ -7,20 +7,184 @@ datasource db {
   provider = "sqlite"
 }
 
-model Garden {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  plants      Plant[]
+// ─── Tables de référence ───────────────────────────────────────────────────────
+
+model TypePlante {
+  id      Int      @id @default(autoincrement())
+  libelle String   @unique
+  plantes Plante[]
 }
 
-model Plant {
+model TypeSol {
+  id        Int        @id @default(autoincrement())
+  libelle   String     @unique
+  parcelles Parcelle[]
+}
+
+model TypeAssociation {
+  id           Int           @id @default(autoincrement())
+  libelle      String        @unique
+  associations Association[]
+}
+
+model StatutCulture {
+  id       Int       @id @default(autoincrement())
+  libelle  String    @unique
+  cultures Culture[]
+}
+
+model TypeAlerte {
+  id      Int      @id @default(autoincrement())
+  libelle String   @unique
+  alertes Alerte[]
+}
+
+model CategorieStock {
+  id         Int         @id @default(autoincrement())
+  libelle    String      @unique
+  stockItems StockItem[]
+}
+
+// ─── Modèles principaux ───────────────────────────────────────────────────────
+
+model Plante {
+  id              Int     @id @default(autoincrement())
+  nom             String
+  nomLatin        String?
+  description     String?
+  conseil         String?
+  maladies        String?
+  ensoleillement  String?
+  moisSemisDebut  Int
+  moisSemisFin    Int
+  joursArrosage   Int
+  joursMaturation Int
+
+  typePlanteId Int
+  typePlante   TypePlante @relation(fields: [typePlanteId], references: [id])
+
+  cultures     Culture[]
+  stockItems   StockItem[]
+  associationsA Association[] @relation("PlanteA")
+  associationsB Association[] @relation("PlanteB")
+}
+
+model Parcelle {
+  id         Int      @id @default(autoincrement())
+  nom        String
+  superficie Float?
+  exposition String?
+  notes      String?
+
+  typeSolId Int?
+  typeSol   TypeSol? @relation(fields: [typeSolId], references: [id])
+
+  cultures Culture[]
+}
+
+model Culture {
+  id                Int       @id @default(autoincrement())
+  dateSemisPrevue   DateTime
+  dateRecoltePrevue DateTime
+  dateSemisReelle   DateTime?
+  dateRecolteReelle DateTime?
+  notes             String?
+
+  planteId   Int
+  plante     Plante        @relation(fields: [planteId], references: [id], onDelete: Cascade)
+
+  parcelleId Int
+  parcelle   Parcelle      @relation(fields: [parcelleId], references: [id], onDelete: Cascade)
+
+  statutId   Int
+  statut     StatutCulture @relation(fields: [statutId], references: [id])
+
+  alertes  Alerte[]
+  recoltes Recolte[]
+  journal  Journal[]
+  tags     CultureTag[]
+}
+
+model StockItem {
+  id          Int     @id @default(autoincrement())
+  nom         String
+  quantite    Float
+  unite       String
+  seuilAlerte Float?
+  notes       String?
+
+  categorieId Int
+  categorie   CategorieStock @relation(fields: [categorieId], references: [id])
+
+  planteId Int?
+  plante   Plante? @relation(fields: [planteId], references: [id])
+}
+
+// ─── Sous-modèles de Culture ──────────────────────────────────────────────────
+
+model Alerte {
   id        Int      @id @default(autoincrement())
-  name      String
-  species   String?
-  plantedAt DateTime @default(now())
+  datePrevu DateTime
+  faite     Boolean  @default(false)
   notes     String?
-  gardenId  Int
-  garden    Garden   @relation(fields: [gardenId], references: [id], onDelete: Cascade)
+
+  cultureId    Int
+  culture      Culture    @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+
+  typeAlerteId Int
+  typeAlerte   TypeAlerte @relation(fields: [typeAlerteId], references: [id])
+}
+
+model Recolte {
+  id       Int      @id @default(autoincrement())
+  date     DateTime @default(now())
+  quantite Float
+  unite    String
+  notes    String?
+
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+}
+
+model Journal {
+  id      Int      @id @default(autoincrement())
+  date    DateTime @default(now())
+  contenu String
+  humeur  String?
+
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+}
+
+// ─── Tables de jonction N:M ───────────────────────────────────────────────────
+
+model Tag {
+  id       Int          @id @default(autoincrement())
+  libelle  String       @unique
+  cultures CultureTag[]
+}
+
+model CultureTag {
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+
+  tagId Int
+  tag   Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([cultureId, tagId])
+}
+
+model Association {
+  planteAId Int
+  planteA   Plante @relation("PlanteA", fields: [planteAId], references: [id], onDelete: Cascade)
+
+  planteBId Int
+  planteB   Plante @relation("PlanteB", fields: [planteBId], references: [id], onDelete: Cascade)
+
+  typeAssociationId Int
+  typeAssociation   TypeAssociation @relation(fields: [typeAssociationId], references: [id])
+
+  raison String?
+
+  @@id([planteAId, planteBId])
 }
