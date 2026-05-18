@@ -7,7 +7,7 @@ datasource db {
   provider = "sqlite"
 }
 
-// ─── Tables de référence ───────────────────────────────────────────────────────
+// J'ai préféré créer des tables de reférence plutot que des choix multiples qui pouvaient etre bloquants
 
 model TypePlante {
   id      Int      @id @default(autoincrement())
@@ -45,7 +45,7 @@ model CategorieStock {
   stockItems StockItem[]
 }
 
-// ─── Modèles principaux ───────────────────────────────────────────────────────
+// Modèles principaux
 
 model Plante {
   id              Int     @id @default(autoincrement())
@@ -120,7 +120,7 @@ model StockItem {
   plante   Plante? @relation(fields: [planteId], references: [id])
 }
 
-// ─── Sous-modèles de Culture ──────────────────────────────────────────────────
+//  Sous-modèles de Culture
 
 model Alerte {
   id        Int      @id @default(autoincrement())
@@ -156,7 +156,7 @@ model Journal {
   culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
 }
 
-// ─── Tables de jonction N:M ───────────────────────────────────────────────────
+//Tables de jonction N:M
 
 model Tag {
   id       Int          @id @default(autoincrement())
