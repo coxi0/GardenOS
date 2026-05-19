@@ -1,0 +1,15 @@
+model Tag {
+  id       Int          @id @default(autoincrement())
+  libelle  String       @unique
+  cultures CultureTag[]
+}
+
+model CultureTag {
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+
+  tagId Int
+  tag   Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([cultureId, tagId])
+}

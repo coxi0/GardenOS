@@ -1,0 +1,14 @@
+model StockItem {
+  id          Int     @id @default(autoincrement())
+  nom         String
+  quantite    Float
+  unite       String
+  seuilAlerte Float?
+  notes       String?
+
+  categorieId Int
+  categorie   CategorieStock @relation(fields: [categorieId], references: [id])
+
+  planteId Int?
+  plante   Plante? @relation(fields: [planteId], references: [id])
+}

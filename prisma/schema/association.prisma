@@ -1,0 +1,14 @@
+model Association {
+  planteAId Int
+  planteA   Plante @relation("PlanteA", fields: [planteAId], references: [id], onDelete: Cascade)
+
+  planteBId Int
+  planteB   Plante @relation("PlanteB", fields: [planteBId], references: [id], onDelete: Cascade)
+
+  typeAssociationId Int
+  typeAssociation   TypeAssociation @relation(fields: [typeAssociationId], references: [id])
+
+  raison String?
+
+  @@id([planteAId, planteBId])
+}

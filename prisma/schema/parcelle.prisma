@@ -1,0 +1,12 @@
+model Parcelle {
+  id         Int      @id @default(autoincrement())
+  nom        String
+  superficie Float?
+  exposition String?
+  notes      String?
+
+  typeSolId Int?
+  typeSol   TypeSol? @relation(fields: [typeSolId], references: [id])
+
+  cultures Culture[]
+}

@@ -1,0 +1,37 @@
+// Tables de référence (listes de valeurs)
+
+model TypePlante {
+  id      Int      @id @default(autoincrement())
+  libelle String   @unique
+  plantes Plante[]
+}
+
+model TypeSol {
+  id        Int        @id @default(autoincrement())
+  libelle   String     @unique
+  parcelles Parcelle[]
+}
+
+model TypeAssociation {
+  id           Int           @id @default(autoincrement())
+  libelle      String        @unique
+  associations Association[]
+}
+
+model StatutCulture {
+  id       Int       @id @default(autoincrement())
+  libelle  String    @unique
+  cultures Culture[]
+}
+
+model TypeAlerte {
+  id      Int      @id @default(autoincrement())
+  libelle String   @unique
+  alertes Alerte[]
+}
+
+model CategorieStock {
+  id         Int         @id @default(autoincrement())
+  libelle    String      @unique
+  stockItems StockItem[]
+}

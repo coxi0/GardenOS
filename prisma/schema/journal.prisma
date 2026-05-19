@@ -1,0 +1,9 @@
+model Journal {
+  id      Int      @id @default(autoincrement())
+  date    DateTime @default(now())
+  contenu String
+  humeur  String?
+
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,21 @@
+model Plante {
+  id              Int     @id @default(autoincrement())
+  nom             String
+  nomLatin        String?
+  description     String?
+  conseil         String?
+  maladies        String?
+  ensoleillement  String?
+  moisSemisDebut  Int
+  moisSemisFin    Int
+  joursArrosage   Int
+  joursMaturation Int
+
+  typePlanteId Int
+  typePlante   TypePlante @relation(fields: [typePlanteId], references: [id])
+
+  cultures     Culture[]
+  stockItems   StockItem[]
+  associationsA Association[] @relation("PlanteA")
+  associationsB Association[] @relation("PlanteB")
+}

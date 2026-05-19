@@ -1,0 +1,22 @@
+model Culture {
+  id                Int       @id @default(autoincrement())
+  dateSemisPrevue   DateTime
+  dateRecoltePrevue DateTime
+  dateSemisReelle   DateTime?
+  dateRecolteReelle DateTime?
+  notes             String?
+
+  planteId   Int
+  plante     Plante        @relation(fields: [planteId], references: [id], onDelete: Cascade)
+
+  parcelleId Int
+  parcelle   Parcelle      @relation(fields: [parcelleId], references: [id], onDelete: Cascade)
+
+  statutId   Int
+  statut     StatutCulture @relation(fields: [statutId], references: [id])
+
+  alertes  Alerte[]
+  recoltes Recolte[]
+  journal  Journal[]
+  tags     CultureTag[]
+}

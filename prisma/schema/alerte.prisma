@@ -1,0 +1,12 @@
+model Alerte {
+  id        Int      @id @default(autoincrement())
+  datePrevu DateTime
+  faite     Boolean  @default(false)
+  notes     String?
+
+  cultureId    Int
+  culture      Culture    @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+
+  typeAlerteId Int
+  typeAlerte   TypeAlerte @relation(fields: [typeAlerteId], references: [id])
+}

@@ -1,0 +1,10 @@
+model Recolte {
+  id       Int      @id @default(autoincrement())
+  date     DateTime @default(now())
+  quantite Float
+  unite    String
+  notes    String?
+
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+}
