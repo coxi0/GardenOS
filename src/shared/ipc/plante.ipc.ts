@@ -21,11 +21,11 @@ export interface TypePlante {
 
 export interface CreatePlanteDto {
   nom: string;
-  nomLatin?: string;
-  description?: string;
-  conseil?: string;
-  maladies?: string;
-  ensoleillement?: string;
+  nomLatin?: string | null;
+  description?: string | null;
+  conseil?: string | null;
+  maladies?: string | null;
+  ensoleillement?: string | null;
   moisSemisDebut: number;
   moisSemisFin: number;
   joursArrosage: number;
@@ -36,11 +36,11 @@ export interface CreatePlanteDto {
 export interface UpdatePlanteDto {
   id: number;
   nom?: string;
-  nomLatin?: string;
-  description?: string;
-  conseil?: string;
-  maladies?: string;
-  ensoleillement?: string;
+  nomLatin?: string | null;
+  description?: string | null;
+  conseil?: string | null;
+  maladies?: string | null;
+  ensoleillement?: string | null;
   moisSemisDebut?: number;
   moisSemisFin?: number;
   joursArrosage?: number;
