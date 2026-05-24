@@ -1,2 +1,207 @@
-<h1>Catalogue des plantes</h1>
-<p>Page en construction...</p>
+<div class="page">
+
+  <!-- En-tête -->
+  <div class="page-header">
+    <h1>Catalogue des plantes</h1>
+    <button class="btn-primary" (click)="ouvrirAjout()">
+      + Ajouter une plante
+    </button>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="recherche-bar">
+    <input
+      type="text"
+      placeholder="Rechercher par nom, nom latin ou type..."
+      [value]="recherche()"
+      (input)="recherche.set($any($event.target).value)"
+    />
+  </div>
+
+  <!-- Liste des plantes -->
+  <div class="plantes-grille">
+
+    @for (plante of plantesFiltrees(); track plante.id) {
+      <div class="plante-carte">
+
+        <div class="carte-badges">
+          <span class="plante-type">{{ plante.typePlante?.libelle }}</span>
+          @if (plante.ensoleillement) {
+            <span class="plante-soleil">{{ plante.ensoleillement }}</span>
+          }
+        </div>
+
+        <h3>{{ plante.nom }}</h3>
+        <p class="nom-latin">{{ plante.nomLatin }}</p>
+        <p class="description">{{ plante.description }}</p>
+
+        <div class="plante-infos">
+          <span>🌱 Semis : mois {{ plante.moisSemisDebut }} → {{ plante.moisSemisFin }}</span>
+          <span>💧 Arrosage : tous les {{ plante.joursArrosage }} jours</span>
+          <span>⏳ Maturation : {{ plante.joursMaturation }} jours</span>
+        </div>
+
+        <div class="carte-actions">
+          <button (click)="ouvrirEdition(plante)">Modifier</button>
+          <button (click)="supprimer(plante.id)">Supprimer</button>
+        </div>
+
+      </div>
+    }
+
+    @empty {
+      <p class="vide">Aucune plante trouvée.</p>
+    }
+
+  </div>
+
+  <!-- Modal formulaire -->
+  @if (modalOuvert()) {
+    <div class="modal-overlay" (click)="fermerModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <!-- Titre -->
+        <div class="modal-header">
+          <h2>{{ modeEdition() ? 'Modifier la plante' : 'Ajouter une plante' }}</h2>
+          <button (click)="fermerModal()">✕</button>
+        </div>
+
+        <!-- Recherche Wikipedia -->
+        <div class="wiki-section">
+          <p>Remplir depuis Wikipedia</p>
+          <div class="wiki-bar">
+            <input
+              type="text"
+              placeholder="Nom de la plante..."
+              [value]="wikiRecherche()"
+              (input)="wikiRecherche.set($any($event.target).value)"
+              (keyup.enter)="rechercherWikipedia()"
+            />
+            <button (click)="rechercherWikipedia()" [disabled]="wikiChargement()">
+              {{ wikiChargement() ? 'Recherche...' : 'Rechercher' }}
+            </button>
+          </div>
+          @if (wikiErreur()) {
+            <p class="erreur">{{ wikiErreur() }}</p>
+          }
+          @if (wikiResultat()) {
+            <p class="wiki-apercu">✓ Données récupérées : {{ wikiResultat()?.title }}</p>
+          }
+        </div>
+
+        <!-- Champs du formulaire -->
+        <div class="form-champs">
+
+          <!-- Nom + Nom latin -->
+          <div class="form-ligne">
+            <label>Nom *
+              <input type="text"
+                [value]="formPlante().nom ?? ''"
+                (input)="formPlante.update(f => ({...f, nom: $any($event.target).value}))"
+              />
+            </label>
+            <label>Nom latin
+              <input type="text"
+                [value]="formPlante().nomLatin ?? ''"
+                (input)="formPlante.update(f => ({...f, nomLatin: $any($event.target).value || null}))"
+              />
+            </label>
+          </div>
+
+          <!-- Type + Ensoleillement -->
+          <div class="form-ligne">
+            <label>Type de plante *
+              <select
+                [value]="formPlante().typePlanteId ?? ''"
+                (change)="formPlante.update(f => ({...f, typePlanteId: +$any($event.target).value}))"
+              >
+                @for (type of typePlantes(); track type.id) {
+                  <option [value]="type.id">{{ type.libelle }}</option>
+                }
+              </select>
+            </label>
+            <label>Ensoleillement
+              <select
+                [value]="formPlante().ensoleillement ?? ''"
+                (change)="formPlante.update(f => ({...f, ensoleillement: $any($event.target).value || null}))"
+              >
+                <option value="">Non défini</option>
+                <option value="Plein soleil">Plein soleil</option>
+                <option value="Mi-ombre">Mi-ombre</option>
+                <option value="Ombre">Ombre</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Description -->
+          <label>Description
+            <textarea
+              [value]="formPlante().description ?? ''"
+              (input)="formPlante.update(f => ({...f, description: $any($event.target).value || null}))"
+            ></textarea>
+          </label>
+
+          <!-- Conseils -->
+          <label>Conseils de culture
+            <textarea
+              [value]="formPlante().conseil ?? ''"
+              (input)="formPlante.update(f => ({...f, conseil: $any($event.target).value || null}))"
+            ></textarea>
+          </label>
+
+          <!-- Maladies -->
+          <label>Maladies et nuisibles
+            <input type="text"
+              [value]="formPlante().maladies ?? ''"
+              (input)="formPlante.update(f => ({...f, maladies: $any($event.target).value || null}))"
+            />
+          </label>
+
+          <!-- Semis -->
+          <div class="form-ligne">
+            <label>Mois semis début
+              <input type="number" min="1" max="12"
+                [value]="formPlante().moisSemisDebut ?? 1"
+                (input)="formPlante.update(f => ({...f, moisSemisDebut: +$any($event.target).value}))"
+              />
+            </label>
+            <label>Mois semis fin
+              <input type="number" min="1" max="12"
+                [value]="formPlante().moisSemisFin ?? 12"
+                (input)="formPlante.update(f => ({...f, moisSemisFin: +$any($event.target).value}))"
+              />
+            </label>
+          </div>
+
+          <!-- Durées -->
+          <div class="form-ligne">
+            <label>Jours entre arrosages
+              <input type="number" min="1"
+                [value]="formPlante().joursArrosage ?? 3"
+                (input)="formPlante.update(f => ({...f, joursArrosage: +$any($event.target).value}))"
+              />
+            </label>
+            <label>Jours jusqu'à maturation
+              <input type="number" min="1"
+                [value]="formPlante().joursMaturation ?? 60"
+                (input)="formPlante.update(f => ({...f, joursMaturation: +$any($event.target).value}))"
+              />
+            </label>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button (click)="fermerModal()">Annuler</button>
+          <button class="btn-primary" (click)="sauvegarder()"
+            [disabled]="!formPlante().nom || !formPlante().typePlanteId">
+            Sauvegarder
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>
