@@ -1,0 +1,152 @@
+<div class="page">
+
+  <!-- En-tête -->
+  <div class="page-header">
+    <h1>Inventaire</h1>
+    <button class="btn-primary" (click)="ouvrirAjout()">+ Ajouter un article</button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filtres-bar">
+    <input
+      type="text"
+      placeholder="Rechercher par nom..."
+      [value]="recherche()"
+      (input)="recherche.set($any($event.target).value)"
+    />
+    <select (change)="filtreCategorie.set($any($event.target).value ? +$any($event.target).value : null)">
+      <option value="">Toutes les catégories</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.libelle }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- Liste -->
+  <div class="stock-grille">
+
+    @for (item of stocksFiltres(); track item.id) {
+      <div class="stock-carte" [class.en-alerte]="enAlerte(item)">
+
+        <div class="carte-badges">
+          <span class="badge-categorie">{{ item.categorie?.libelle }}</span>
+          @if (enAlerte(item)) {
+            <span class="badge-alerte">⚠ Stock bas</span>
+          }
+        </div>
+
+        <h3>{{ item.nom }}</h3>
+
+        <div class="stock-infos">
+          <span>Quantité : <strong>{{ item.quantite }} {{ item.unite }}</strong></span>
+          @if (item.seuilAlerte !== null) {
+            <span>Seuil alerte : {{ item.seuilAlerte }} {{ item.unite }}</span>
+          }
+          @if (item.plante) {
+            <span>Plante liée : {{ item.plante.nom }}</span>
+          }
+          @if (item.notes) {
+            <p class="notes">{{ item.notes }}</p>
+          }
+        </div>
+
+        <div class="carte-actions">
+          <button (click)="ouvrirEdition(item)">Modifier</button>
+          <button (click)="supprimer(item.id)">Supprimer</button>
+        </div>
+
+      </div>
+    }
+
+    @empty {
+      <p class="vide">Aucun article trouvé.</p>
+    }
+
+  </div>
+
+  <!-- Modal -->
+  @if (modalOuvert()) {
+    <div class="modal-overlay" (click)="fermerModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <h2>{{ modeEdition() ? 'Modifier' : 'Ajouter un article' }}</h2>
+          <button (click)="fermerModal()">✕</button>
+        </div>
+
+        <div class="form-champs">
+
+          <!-- Nom + Unité -->
+          <div class="form-ligne">
+            <label>Nom *
+              <input type="text"
+                [value]="formStock().nom ?? ''"
+                (input)="formStock.update(f => ({...f, nom: $any($event.target).value}))"
+              />
+            </label>
+            <label>Unité *
+              <input type="text" placeholder="kg, unité, L..."
+                [value]="formStock().unite ?? ''"
+                (input)="formStock.update(f => ({...f, unite: $any($event.target).value}))"
+              />
+            </label>
+          </div>
+
+          <!-- Quantité + Seuil d'alerte -->
+          <div class="form-ligne">
+            <label>Quantité *
+              <input type="number" min="0" step="0.1"
+                [value]="formStock().quantite ?? 0"
+                (input)="formStock.update(f => ({...f, quantite: +$any($event.target).value}))"
+              />
+            </label>
+            <label>Seuil d'alerte
+              <input type="number" min="0" step="0.1" placeholder="Optionnel"
+                [value]="formStock().seuilAlerte ?? ''"
+                (input)="formStock.update(f => ({...f, seuilAlerte: $any($event.target).value ? +$any($event.target).value : null}))"
+              />
+            </label>
+          </div>
+
+          <!-- Catégorie -->
+          <label>Catégorie *
+            <select (change)="formStock.update(f => ({...f, categorieId: +$any($event.target).value}))">
+              @for (cat of categories(); track cat.id) {
+                <option [value]="cat.id" [selected]="formStock().categorieId === cat.id">{{ cat.libelle }}</option>
+              }
+            </select>
+          </label>
+
+          <!-- Plante liée (optionnel) -->
+          <label>Plante liée
+            <select (change)="formStock.update(f => ({...f, planteId: $any($event.target).value ? +$any($event.target).value : null}))">
+              <option value="">Aucune</option>
+              @for (plante of plantes(); track plante.id) {
+                <option [value]="plante.id" [selected]="formStock().planteId === plante.id">{{ plante.nom }}</option>
+              }
+            </select>
+          </label>
+
+          <!-- Notes -->
+          <label>Notes
+            <textarea
+              [value]="formStock().notes ?? ''"
+              (input)="formStock.update(f => ({...f, notes: $any($event.target).value || null}))"
+            ></textarea>
+          </label>
+
+        </div>
+
+        <div class="modal-footer">
+          <button (click)="fermerModal()">Annuler</button>
+          <button class="btn-primary" (click)="sauvegarder()"
+            [disabled]="!formStock().nom || !formStock().categorieId || !formStock().unite">
+            Sauvegarder
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

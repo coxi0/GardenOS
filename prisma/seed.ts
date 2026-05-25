@@ -18,6 +18,17 @@ async function main() {
   }
 
   console.log('Seed TypePlante OK');
+
+  const categories = ['Graine', 'Outil', 'Engrais', 'Traitement'];
+  for (const libelle of categories) {
+    await prisma.categorieStock.upsert({
+      where: { libelle },
+      update: {},
+      create: { libelle },
+    });
+  }
+
+  console.log('Seed CategorieStock OK');
 }
 
 main()

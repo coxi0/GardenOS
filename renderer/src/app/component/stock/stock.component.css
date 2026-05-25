@@ -1,0 +1,172 @@
+.page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 { margin: 0; font-size: 1.8rem; }
+
+.btn-primary {
+  background: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.btn-primary:hover    { background: #1b4332; }
+.btn-primary:disabled { background: #95d5b2; cursor: not-allowed; }
+
+/* ── Filtres ─────────────────────────────────────────────────────────────── */
+.filtres-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filtres-bar input  { flex: 2; padding: 0.7rem 1rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+.filtres-bar select { flex: 1; padding: 0.7rem 1rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; background: white; }
+
+/* ── Grille ──────────────────────────────────────────────────────────────── */
+.stock-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.stock-carte {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.2rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.stock-carte.en-alerte {
+  border-color: #e74c3c;
+  background: #fff8f8;
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.carte-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+
+.badge-categorie {
+  display: inline-block;
+  background: #d8f3dc;
+  color: #1b4332;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.badge-alerte {
+  display: inline-block;
+  background: #fde8e8;
+  color: #c0392b;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.stock-carte h3 { margin: 0.3rem 0; font-size: 1.1rem; }
+
+.stock-infos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.6rem 0 1rem;
+}
+
+.notes {
+  font-style: italic;
+  color: #888;
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+}
+
+.carte-actions { display: flex; gap: 0.5rem; }
+.carte-actions button {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: white;
+}
+.carte-actions button:hover { background: #f5f5f5; }
+.carte-actions button:last-child { color: #c0392b; border-color: #c0392b; }
+.carte-actions button:last-child:hover { background: #fdf2f2; }
+
+.vide { color: #888; font-style: italic; grid-column: 1 / -1; text-align: center; padding: 2rem 0; }
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { margin: 0; }
+.modal-header button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; }
+
+.form-champs { display: flex; flex-direction: column; gap: 0.8rem; }
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+label input, label textarea, label select {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: white;
+}
+
+label textarea { resize: vertical; min-height: 80px; }
+
+.form-ligne { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+.modal-footer { display: flex; justify-content: flex-end; gap: 0.8rem; }
+.modal-footer button:first-child {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
