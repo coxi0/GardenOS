@@ -2,6 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { registerPlanteHandlers } from './ipc/plante.handlers';
+import { registerStockHandlers } from './ipc/stock.handlers';
 import { disconnectDb } from './services/db.service';
 
 if (started) {
@@ -35,6 +36,7 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   registerPlanteHandlers();
+  registerStockHandlers();
   createWindow();
 });
 
