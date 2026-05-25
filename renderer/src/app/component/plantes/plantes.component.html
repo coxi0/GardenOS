@@ -112,11 +112,10 @@
           <div class="form-ligne">
             <label>Type de plante *
               <select
-                [value]="formPlante().typePlanteId ?? ''"
                 (change)="formPlante.update(f => ({...f, typePlanteId: +$any($event.target).value}))"
               >
                 @for (type of typePlantes(); track type.id) {
-                  <option [value]="type.id">{{ type.libelle }}</option>
+                  <option [value]="type.id" [selected]="formPlante().typePlanteId === type.id">{{ type.libelle }}</option>
                 }
               </select>
             </label>

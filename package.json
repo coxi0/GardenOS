@@ -5,6 +5,7 @@
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "dev": "concurrently -k -n \"ANGULAR,ELECTRON\" -c \"cyan,green\" \"npm run dev:angular\" \"npm run dev:electron\"",
     "dev:angular": "npm start --prefix renderer",
@@ -15,7 +16,9 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:studio": "npx prisma studio"
   },
   "keywords": [],
   "author": {
@@ -23,6 +26,9 @@
     "email": "73657576+coxi0@users.noreply.github.com"
   },
   "license": "MIT",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-deb": "^7.11.1",
@@ -33,28 +39,24 @@
     "@electron-forge/plugin-fuses": "^7.11.1",
     "@electron-forge/plugin-vite": "^7.11.1",
     "@electron/fuses": "^1.8.0",
+    "@electron/rebuild": "^4.0.4",
     "@types/better-sqlite3": "^7.6.13",
     "@types/electron-squirrel-startup": "^1.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
     "concurrently": "^9.2.1",
-    "dotenv": "^16.0.0",
-    "electron": "42.0.1",
-    "eslint": "^8.57.1",
-    "eslint-plugin-import": "^2.32.0",
+    "dotenv": "^17.4.2",
+    "electron": "^41.1.1",
+    "prisma": "^7.8.0",
     "ts-node": "^10.9.2",
-    "typescript": "~5.9.2",
-    "vite": "^5.4.21",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.10",
     "wait-on": "^9.0.10"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "dependencies": {
+    "@lucide/angular": "^1.16.0",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "better-sqlite3": "^12.10.0",
+    "better-sqlite3": "^12.9.0",
     "electron-squirrel-startup": "^1.0.1",
-    "prisma": "^7.8.0"
+    "zod": "^4.4.3"
   }
 }
