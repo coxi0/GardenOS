@@ -29,6 +29,30 @@ async function main() {
   }
 
   console.log('Seed CategorieStock OK');
+
+  const StatutCulture = ['Planifiée', 'En cours', 'Récoltée', 'Abandonnée']
+  for (const libelle of StatutCulture) {
+    await prisma.statutCulture.upsert({
+      where: { libelle },
+      update: {},
+      create: { libelle },
+    });
+  }
+
+  console.log('Seed StatutCulture OK');
+
+  console.log('Seed CategorieStock OK');
+
+  const TypeSol  = ['Argileux', 'Sableux', 'Limoneux', 'Calcaire', 'Humifère']
+  for (const libelle of TypeSol) {
+    await prisma.typeSol.upsert({
+      where: { libelle },
+      update: {},
+      create: { libelle },
+    });
+  }
+
+  console.log('Seed TypeSol OK');
 }
 
 main()
