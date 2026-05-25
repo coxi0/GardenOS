@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm rebuild *)",
+      "Bash(npx prisma *)",
+      "Bash(node -e \"const fs = require\\('fs'\\); const p = 'e:/Ietc/Projet de developpement SGBD/gardenos/GardenOS/node_modules/better-sqlite3/build/Release/.forge-meta'; console.log\\(fs.readFileSync\\(p, 'utf8'\\)\\);\")",
+      "Bash(npx @electron/rebuild -o better-sqlite3 -v 41.7.0 -f)"
+    ]
+  }
+}

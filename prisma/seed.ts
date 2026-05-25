@@ -8,7 +8,7 @@ const adapter = new PrismaBetterSqlite3({ url: 'file:' + dbPath });
 const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
-  const types = ['Légume', 'Aromatique', 'Fruit', 'Fleur', 'Arbre'];
+  const types = ['Légume', 'Aromatique', 'Fruit', 'Fleur', 'Arbre', "Plante d'intérieur"];
   for (const libelle of types) {
     await prisma.typePlante.upsert({
       where: { libelle },
