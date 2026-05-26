@@ -1,5 +1,6 @@
 import type { CreatePlanteDto, UpdatePlanteDto, Plante, TypePlante, WikipediaResult } from '../../src/shared/ipc/plante.ipc';
 import type { StockItem, CategorieStock, CreateStockItemDto, UpdateStockItemDto } from '../../src/shared/ipc/stock.ipc';
+import type { ParcelleFull, CultureFull, Recolte, Tag, StatutCulture, TypeSol, CreateParcelleDto, UpdateParcelleDto, CreateCultureDto, UpdateCultureDto, CreateRecolteDto } from '../../src/shared/ipc/jardin.ipc';
 // Déclare à TypeScript ce que le preload a exposé via contextBridge.
 // Sans ce fichier, window.electronAPI serait de type "any" et on perdrait
 // toute vérification de types sur les appels IPC.
@@ -19,6 +20,18 @@ declare global {
       'stocks:update':          (data: UpdateStockItemDto) => Promise<StockItem>;
       'stocks:delete':          (data: { id: number })    => Promise<void>;
       'categoriesStock:getAll': ()                        => Promise<CategorieStock[]>;
+      'parcelles:getAll':       ()                        => Promise<ParcelleFull[]>;
+      'parcelles:create':       (data: CreateParcelleDto) => Promise<ParcelleFull>;
+      'parcelles:update':       (data: UpdateParcelleDto) => Promise<ParcelleFull>;
+      'parcelles:delete':       (data: { id: number })    => Promise<void>;
+      'cultures:create':        (data: CreateCultureDto)  => Promise<CultureFull>;
+      'cultures:update':        (data: UpdateCultureDto)  => Promise<CultureFull>;
+      'cultures:delete':        (data: { id: number })    => Promise<void>;
+      'recoltes:create':        (data: CreateRecolteDto)  => Promise<Recolte>;
+      'recoltes:delete':        (data: { id: number })    => Promise<void>;
+      'tags:getAll':            ()                        => Promise<Tag[]>;
+      'statutsCulture:getAll':  ()                        => Promise<StatutCulture[]>;
+      'typesSol:getAll':        ()                        => Promise<TypeSol[]>;
     };
   }
 }

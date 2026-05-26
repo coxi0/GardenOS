@@ -3,6 +3,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { registerPlanteHandlers } from './ipc/plante.handlers';
 import { registerStockHandlers } from './ipc/stock.handlers';
+import { registerJardinHandlers } from './ipc/jardin.handlers';
 import { disconnectDb } from './services/db.service';
 
 if (started) {
@@ -37,6 +38,7 @@ const createWindow = () => {
 app.on('ready', () => {
   registerPlanteHandlers();
   registerStockHandlers();
+  registerJardinHandlers();
   createWindow();
 });
 
