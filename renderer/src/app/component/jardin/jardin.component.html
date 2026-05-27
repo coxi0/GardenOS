@@ -1,106 +1,148 @@
 <div class="page">
 
-  <!-- En-tête -->
   <div class="page-header">
     <h1>Mon Jardin</h1>
-    <button class="btn-primary" (click)="ouvrirAjoutParcelle()">+ Ajouter une parcelle</button>
+    <p class="page-hint">Cliquez sur une case vide pour créer une parcelle · Glissez pour déplacer</p>
   </div>
 
-  <!-- Parcelles vides -->
-  @if (parcelles().length === 0) {
-    <p class="vide">Aucune parcelle. Commencez par en créer une.</p>
-  }
+  <!-- Grille -->
+  <div class="jardin-grille">
 
-  <!-- Liste des parcelles -->
-  @for (parcelle of parcelles(); track parcelle.id) {
-    <section class="parcelle">
+    @for (cell of grille(); track cell.x + '-' + cell.y) {
 
-      <div class="parcelle-header">
-        <div class="parcelle-titre">
-          <h2>{{ parcelle.nom }}</h2>
-          @if (parcelle.superficie) {
-            <span class="parcelle-meta">{{ parcelle.superficie }} m²</span>
-          }
-          @if (parcelle.exposition) {
-            <span class="parcelle-meta">{{ parcelle.exposition }}</span>
-          }
-        </div>
-        <div class="parcelle-actions">
-          <button (click)="ouvrirAjoutCulture(parcelle.id)">+ Culture</button>
-          <button (click)="ouvrirEditionParcelle(parcelle)">Modifier</button>
-          <button class="btn-danger" (click)="supprimerParcelle(parcelle.id)">Supprimer</button>
-        </div>
-      </div>
+      @if (cell.parcelle) {
+        <div class="cellule occupee"
+          [class.dragging]="draggedId() === cell.parcelle.id"
+          draggable="true"
+          (dragstart)="onDragStart(cell.parcelle)"
+          (dragend)="onDragEnd()"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event, cell)"
+          (click)="ouvrirDetail(cell.parcelle)"
+        >
+          <div class="parcelle-nom">{{ cell.parcelle.nom }}</div>
 
-      <!-- Cultures de la parcelle -->
-      @if (parcelle.cultures.length === 0) {
-        <p class="vide-cultures">Aucune culture dans cette parcelle.</p>
-      }
-
-      <div class="cultures-liste">
-        @for (culture of parcelle.cultures; track culture.id) {
-          <div class="culture-carte">
-
-            <div class="culture-top">
-              <div class="culture-info">
-                <strong>{{ culture.plante.nom }}</strong>
-                <select class="statut-select" [class]="couleurStatut(culture.statut.libelle)"
-                  (change)="changerStatut(culture, +$any($event.target).value)">
-                  @for (s of statuts(); track s.id) {
-                    <option [value]="s.id" [selected]="culture.statutId === s.id">{{ s.libelle }}</option>
-                  }
-                </select>
-              </div>
-              <div class="culture-actions">
-                <button (click)="ouvrirRecolte(culture)" title="Enregistrer une récolte">🌾</button>
-                <button (click)="ouvrirEditionCulture(culture)">Modifier</button>
-                <button class="btn-danger" (click)="supprimerCulture(culture)">✕</button>
-              </div>
-            </div>
-
-            <!-- Tags -->
-            @if (culture.tags.length > 0) {
-              <div class="tags">
-                @for (t of culture.tags; track t.id) {
-                  <span class="tag">{{ t.libelle }}</span>
-                }
-              </div>
+          <div class="parcelle-meta-ligne">
+            @if (cell.parcelle.superficie) {
+              <span>{{ cell.parcelle.superficie }} m²</span>
             }
-
-            <!-- Dates -->
-            <div class="dates">
-              <span>Semis prévu : {{ formatDate(culture.dateSemisPrevue) }}</span>
-              @if (culture.dateSemisReelle) {
-                <span>Semis réel : {{ formatDate(culture.dateSemisReelle) }}</span>
-              }
-              <span>Récolte prévue : {{ formatDate(culture.dateRecoltePrevue) }}</span>
-              @if (culture.dateRecolteReelle) {
-                <span>Récolte réelle : {{ formatDate(culture.dateRecolteReelle) }}</span>
-              }
-            </div>
-
-            <!-- Récoltes -->
-            @if (culture.recoltes.length > 0) {
-              <div class="recoltes">
-                <span class="recoltes-titre">Récoltes :</span>
-                @for (r of culture.recoltes; track r.id) {
-                  <span class="recolte-item">
-                    {{ formatDate(r.date) }} — {{ r.quantite }} {{ r.unite }}
-                    <button class="btn-suppr-recolte" (click)="supprimerRecolte(culture, r.id)">✕</button>
-                  </span>
-                }
-                <span class="recolte-total">Total : {{ totalRecoltes(culture) }}</span>
-              </div>
+            @if (cell.parcelle.exposition) {
+              <span>{{ cell.parcelle.exposition }}</span>
             }
-
           </div>
-        }
-      </div>
 
-    </section>
+          <div class="parcelle-cultures-count">
+            {{ cell.parcelle.cultures.length }} culture{{ cell.parcelle.cultures.length !== 1 ? 's' : '' }}
+          </div>
+
+          <div class="parcelle-statuts">
+            @for (c of cell.parcelle.cultures; track c.id) {
+              <span class="dot" [class]="couleurStatut(c.statut.libelle)" [title]="c.plante.nom + ' · ' + c.statut.libelle"></span>
+            }
+          </div>
+
+          <div class="parcelle-actions-grille">
+            <button (click)="ouvrirEditionParcelle(cell.parcelle, $event)" title="Modifier">Modifier</button>
+            <button (click)="supprimerParcelle(cell.parcelle.id, $event)" title="Supprimer">Suppr.</button>
+          </div>
+        </div>
+
+      } @else {
+        <div class="cellule vide"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop($event, cell)"
+          (click)="ouvrirAjoutParcelle(cell)"
+        >
+          <span class="plus">+</span>
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- Panneau de détail -->
+  @if (parcelleDetail()) {
+    <div class="detail-overlay" (click)="fermerDetail()">
+      <div class="detail-panel" (click)="$event.stopPropagation()">
+
+        <div class="detail-header">
+          <div>
+            <h2>{{ parcelleDetail()!.nom }}</h2>
+            <span class="detail-meta">
+              @if (parcelleDetail()!.superficie) { {{ parcelleDetail()!.superficie }} m² · }
+              @if (parcelleDetail()!.exposition) { {{ parcelleDetail()!.exposition }} }
+            </span>
+          </div>
+          <div class="detail-header-actions">
+            <button class="btn-primary" (click)="ouvrirAjoutCulture(parcelleDetail()!.id)">+ Culture</button>
+            <button (click)="fermerDetail()">✕</button>
+          </div>
+        </div>
+
+        @if (parcelleDetail()!.cultures.length === 0) {
+          <p class="vide-cultures">Aucune culture. Cliquez sur "+ Culture" pour commencer.</p>
+        }
+
+        <div class="cultures-liste">
+          @for (culture of parcelleDetail()!.cultures; track culture.id) {
+            <div class="culture-carte">
+
+              <div class="culture-top">
+                <div class="culture-info">
+                  <strong>{{ culture.plante.nom }}</strong>
+                  <select class="statut-select" [class]="couleurStatut(culture.statut.libelle)"
+                    (change)="changerStatut(culture, +$any($event.target).value)">
+                    @for (s of statuts(); track s.id) {
+                      <option [value]="s.id" [selected]="culture.statutId === s.id">{{ s.libelle }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="culture-actions">
+                  <button (click)="ouvrirRecolte(culture)">Récolte</button>
+                  <button (click)="ouvrirEditionCulture(culture)">Modifier</button>
+                  <button class="btn-danger" (click)="supprimerCulture(culture)">✕</button>
+                </div>
+              </div>
+
+              @if (culture.tags.length > 0) {
+                <div class="tags">
+                  @for (t of culture.tags; track t.id) {
+                    <span class="tag">{{ t.libelle }}</span>
+                  }
+                </div>
+              }
+
+              <div class="dates">
+                <span>Semis : {{ formatDate(culture.dateSemisPrevue) }}
+                  @if (culture.dateSemisReelle) { → {{ formatDate(culture.dateSemisReelle) }} }
+                </span>
+                <span>Récolte : {{ formatDate(culture.dateRecoltePrevue) }}
+                  @if (culture.dateRecolteReelle) { → {{ formatDate(culture.dateRecolteReelle) }} }
+                </span>
+              </div>
+
+              @if (culture.recoltes.length > 0) {
+                <div class="recoltes">
+                  <span class="recoltes-titre">Récoltes :</span>
+                  @for (r of culture.recoltes; track r.id) {
+                    <span class="recolte-item">
+                      {{ formatDate(r.date) }} — {{ r.quantite }} {{ r.unite }}
+                      <button class="btn-suppr-recolte" (click)="supprimerRecolte(culture, r.id)">✕</button>
+                    </span>
+                  }
+                  <strong class="recolte-total">{{ totalRecoltes(culture) }}</strong>
+                </div>
+              }
+
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
   }
 
-  <!-- ── Modal Parcelle ───────────────────────────────────────────────────── -->
+  <!-- Modal Parcelle -->
   @if (modalParcelleOuvert()) {
     <div class="modal-overlay" (click)="fermerModalParcelle()">
       <div class="modal" (click)="$event.stopPropagation()">
@@ -151,7 +193,7 @@
     </div>
   }
 
-  <!-- ── Modal Culture ────────────────────────────────────────────────────── -->
+  <!-- Modal Culture -->
   @if (modalCultureOuvert()) {
     <div class="modal-overlay" (click)="fermerModalCulture()">
       <div class="modal modal-large" (click)="$event.stopPropagation()">
@@ -162,7 +204,6 @@
         </div>
 
         <div class="form-champs">
-
           <div class="form-ligne">
             <label>Plante *
               <select (change)="formCulture.update(f => ({...f, planteId: +$any($event.target).value}))">
@@ -179,7 +220,6 @@
               </select>
             </label>
           </div>
-
           <div class="form-ligne">
             <label>Semis prévu *
               <input type="date" [value]="formCulture().dateSemisPrevue ?? ''"
@@ -190,7 +230,6 @@
                 (change)="formCulture.update(f => ({...f, dateRecoltePrevue: $any($event.target).value}))" />
             </label>
           </div>
-
           <div class="form-ligne">
             <label>Semis réel
               <input type="date" [value]="formCulture().dateSemisReelle ?? ''"
@@ -201,8 +240,6 @@
                 (change)="formCulture.update(f => ({...f, dateRecolteReelle: $any($event.target).value || null}))" />
             </label>
           </div>
-
-          <!-- Tags -->
           <label>Tags
             <div class="tag-saisie">
               <input type="text" placeholder="Ajouter un tag..."
@@ -219,12 +256,10 @@
               }
             </div>
           </label>
-
           <label>Notes
             <textarea [value]="formCulture().notes ?? ''"
               (input)="formCulture.update(f => ({...f, notes: $any($event.target).value || null}))"></textarea>
           </label>
-
         </div>
 
         <div class="modal-footer">
@@ -239,7 +274,7 @@
     </div>
   }
 
-  <!-- ── Modal Récolte ────────────────────────────────────────────────────── -->
+  <!-- Modal Récolte -->
   @if (modalRecolteOuvert()) {
     <div class="modal-overlay" (click)="fermerModalRecolte()">
       <div class="modal modal-small" (click)="$event.stopPropagation()">
@@ -259,14 +294,12 @@
                 (input)="formRecolte.update(f => ({...f, quantite: +$any($event.target).value}))" />
             </label>
             <label>Unité *
-              <input type="text" placeholder="kg, L, unité..."
-                [value]="formRecolte().unite"
+              <input type="text" [value]="formRecolte().unite"
                 (input)="formRecolte.update(f => ({...f, unite: $any($event.target).value}))" />
             </label>
           </div>
           <label>Notes
-            <input type="text"
-              [value]="formRecolte().notes"
+            <input type="text" [value]="formRecolte().notes"
               (input)="formRecolte.update(f => ({...f, notes: $any($event.target).value}))" />
           </label>
         </div>

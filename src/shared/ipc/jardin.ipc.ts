@@ -45,6 +45,8 @@ export interface ParcelleFull {
   exposition: string | null;
   notes: string | null;
   typeSolId: number | null;
+  posX: number;
+  posY: number;
   cultures: CultureFull[];
 }
 
@@ -56,6 +58,8 @@ export interface CreateParcelleDto {
   exposition?: string | null;
   notes?: string | null;
   typeSolId?: number | null;
+  posX?: number;
+  posY?: number;
 }
 
 export interface UpdateParcelleDto {
@@ -65,6 +69,8 @@ export interface UpdateParcelleDto {
   exposition?: string | null;
   notes?: string | null;
   typeSolId?: number | null;
+  posX?: number;
+  posY?: number;
 }
 
 export interface CreateCultureDto {

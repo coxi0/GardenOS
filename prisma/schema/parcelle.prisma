@@ -4,6 +4,8 @@ model Parcelle {
   superficie Float?
   exposition String?
   notes      String?
+  posX       Int      @default(0)
+  posY       Int      @default(0)
 
   typeSolId Int?
   typeSol   TypeSol? @relation(fields: [typeSolId], references: [id])

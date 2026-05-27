@@ -3,6 +3,12 @@ import { JardinService, ParcelleFull, CultureFull, Recolte, StatutCulture, TypeS
 import { PlanteService } from '../../services/plante.service';
 import type { Plante } from '../../services/plante.service';
 
+interface GridCell {
+  x: number;
+  y: number;
+  parcelle: ParcelleFull | null;
+}
+
 @Component({
   selector: 'app-jardin',
   templateUrl: './jardin.component.html',
@@ -13,7 +19,6 @@ export class JardinComponent implements OnInit {
   private jardinService = inject(JardinService);
   private planteService = inject(PlanteService);
 
-  // ── Données ──────────────────────────────────────────────────────────────────
   parcelles = signal<ParcelleFull[]>([]);
   statuts   = signal<StatutCulture[]>([]);
   typesSol  = signal<TypeSol[]>([]);
@@ -35,18 +40,62 @@ export class JardinComponent implements OnInit {
     this.tags.set(tags);
   }
 
-  // ── Modal Parcelle ────────────────────────────────────────────────────────────
+  // Grille
+  readonly COLS = 4;
+  readonly ROWS = 4;
+
+  grille = computed<GridCell[]>(() => {
+    const cells: GridCell[] = [];
+    for (let y = 0; y < this.ROWS; y++) {
+      for (let x = 0; x < this.COLS; x++) {
+        const parcelle = this.parcelles().find(p => p.posX === x && p.posY === y) ?? null;
+        cells.push({ x, y, parcelle });
+      }
+    }
+    return cells;
+  });
+
+  // Drag & drop
+  draggedId = signal<number | null>(null);
+
+  onDragStart(parcelle: ParcelleFull) {
+    this.draggedId.set(parcelle.id);
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  async onDrop(event: DragEvent, cell: GridCell) {
+    event.preventDefault();
+    const id = this.draggedId();
+    if (id === null) return;
+    if (cell.parcelle && cell.parcelle.id !== id) return;
+
+    const updated = await this.jardinService.updateParcelle({ id, posX: cell.x, posY: cell.y });
+    this.parcelles.update(list => list.map(p => p.id === updated.id ? updated : p));
+    this.draggedId.set(null);
+  }
+
+  onDragEnd() {
+    this.draggedId.set(null);
+  }
+
+  // Modal parcelle
   modalParcelleOuvert = signal(false);
   modeEditionParcelle = signal(false);
-  formParcelle = signal<Partial<ParcelleFull>>({});
+  formParcelle        = signal<Partial<ParcelleFull>>({});
+  celleCible          = signal<{ x: number; y: number } | null>(null);
 
-  ouvrirAjoutParcelle() {
-    this.formParcelle.set({});
+  ouvrirAjoutParcelle(cell: GridCell) {
+    this.formParcelle.set({ posX: cell.x, posY: cell.y });
+    this.celleCible.set({ x: cell.x, y: cell.y });
     this.modeEditionParcelle.set(false);
     this.modalParcelleOuvert.set(true);
   }
 
-  ouvrirEditionParcelle(p: ParcelleFull) {
+  ouvrirEditionParcelle(p: ParcelleFull, event: MouseEvent) {
+    event.stopPropagation();
     this.formParcelle.set({ ...p });
     this.modeEditionParcelle.set(true);
     this.modalParcelleOuvert.set(true);
@@ -65,29 +114,44 @@ export class JardinComponent implements OnInit {
         id: form.id!, nom: form.nom,
         superficie: form.superficie, exposition: form.exposition,
         notes: form.notes, typeSolId: form.typeSolId,
+        posX: form.posX, posY: form.posY,
       });
       this.parcelles.update(list => list.map(p => p.id === updated.id ? updated : p));
     } else {
       const created = await this.jardinService.createParcelle({
         nom: form.nom, superficie: form.superficie,
-        exposition: form.exposition, notes: form.notes, typeSolId: form.typeSolId,
+        exposition: form.exposition, notes: form.notes,
+        typeSolId: form.typeSolId,
+        posX: form.posX ?? 0, posY: form.posY ?? 0,
       });
       this.parcelles.update(list => [...list, created]);
     }
     this.fermerModalParcelle();
   }
 
-  async supprimerParcelle(id: number) {
+  async supprimerParcelle(id: number, event: MouseEvent) {
+    event.stopPropagation();
     await this.jardinService.deleteParcelle(id);
     this.parcelles.update(list => list.filter(p => p.id !== id));
   }
 
-  // ── Modal Culture ─────────────────────────────────────────────────────────────
-  modalCultureOuvert  = signal(false);
-  modeEditionCulture  = signal(false);
-  formCulture         = signal<Partial<CultureFull & { tagsLibelles: string[] }>>({});
+  // Détail parcelle
+  parcelleDetail = signal<ParcelleFull | null>(null);
+
+  ouvrirDetail(parcelle: ParcelleFull) {
+    this.parcelleDetail.set(parcelle);
+  }
+
+  fermerDetail() {
+    this.parcelleDetail.set(null);
+  }
+
+  // Modal culture
+  modalCultureOuvert   = signal(false);
+  modeEditionCulture   = signal(false);
+  formCulture          = signal<Partial<CultureFull & { tagsLibelles: string[] }>>({});
   parcelleSelectionnee = signal<number | null>(null);
-  tagSaisie           = signal('');
+  tagSaisie            = signal('');
 
   ouvrirAjoutCulture(parcelleId: number) {
     this.formCulture.set({
@@ -103,10 +167,7 @@ export class JardinComponent implements OnInit {
   }
 
   ouvrirEditionCulture(culture: CultureFull) {
-    this.formCulture.set({
-      ...culture,
-      tagsLibelles: culture.tags.map(t => t.libelle),
-    });
+    this.formCulture.set({ ...culture, tagsLibelles: culture.tags.map(t => t.libelle) });
     this.parcelleSelectionnee.set(culture.parcelleId);
     this.modeEditionCulture.set(true);
     this.modalCultureOuvert.set(true);
@@ -121,55 +182,49 @@ export class JardinComponent implements OnInit {
     const libelle = this.tagSaisie().trim();
     if (!libelle) return;
     const courants = this.formCulture().tagsLibelles ?? [];
-    if (!courants.includes(libelle)) {
+    if (!courants.includes(libelle))
       this.formCulture.update(f => ({ ...f, tagsLibelles: [...courants, libelle] }));
-    }
     this.tagSaisie.set('');
   }
 
   retirerTag(libelle: string) {
     this.formCulture.update(f => ({
-      ...f,
-      tagsLibelles: (f.tagsLibelles ?? []).filter(t => t !== libelle),
+      ...f, tagsLibelles: (f.tagsLibelles ?? []).filter(t => t !== libelle),
     }));
   }
 
   async sauvegarderCulture() {
-    const form = this.formCulture();
+    const form       = this.formCulture();
     const parcelleId = this.parcelleSelectionnee();
     if (!form.planteId || !form.statutId || !parcelleId) return;
 
     if (this.modeEditionCulture()) {
       const updated = await this.jardinService.updateCulture({
-        id:                form.id!,
-        dateSemisPrevue:   form.dateSemisPrevue,
+        id: form.id!, dateSemisPrevue: form.dateSemisPrevue,
         dateRecoltePrevue: form.dateRecoltePrevue,
-        dateSemisReelle:   form.dateSemisReelle,
-        dateRecolteReelle: form.dateRecolteReelle,
-        notes:             form.notes,
-        planteId:          form.planteId,
-        statutId:          form.statutId,
-        tags:              form.tagsLibelles ?? [],
+        dateSemisReelle: form.dateSemisReelle, dateRecolteReelle: form.dateRecolteReelle,
+        notes: form.notes, planteId: form.planteId, statutId: form.statutId,
+        tags: form.tagsLibelles ?? [],
       });
       this.parcelles.update(list => list.map(p => ({
-        ...p,
-        cultures: p.cultures.map(c => c.id === updated.id ? updated : c),
+        ...p, cultures: p.cultures.map(c => c.id === updated.id ? updated : c),
       })));
+      this.parcelleDetail.update(d => d ? {
+        ...d, cultures: d.cultures.map(c => c.id === updated.id ? updated : c),
+      } : d);
     } else {
       const created = await this.jardinService.createCulture({
-        dateSemisPrevue:   form.dateSemisPrevue!,
-        dateRecoltePrevue: form.dateRecoltePrevue!,
-        dateSemisReelle:   form.dateSemisReelle,
-        dateRecolteReelle: form.dateRecolteReelle,
-        notes:             form.notes,
-        planteId:          form.planteId,
-        parcelleId:        parcelleId,
-        statutId:          form.statutId,
-        tags:              form.tagsLibelles ?? [],
+        dateSemisPrevue: form.dateSemisPrevue!, dateRecoltePrevue: form.dateRecoltePrevue!,
+        dateSemisReelle: form.dateSemisReelle, dateRecolteReelle: form.dateRecolteReelle,
+        notes: form.notes, planteId: form.planteId, parcelleId,
+        statutId: form.statutId, tags: form.tagsLibelles ?? [],
       });
       this.parcelles.update(list => list.map(p =>
         p.id === parcelleId ? { ...p, cultures: [...p.cultures, created] } : p
       ));
+      this.parcelleDetail.update(d =>
+        d?.id === parcelleId ? { ...d, cultures: [...d.cultures, created] } : d
+      );
     }
     this.fermerModalCulture();
   }
@@ -177,25 +232,27 @@ export class JardinComponent implements OnInit {
   async supprimerCulture(culture: CultureFull) {
     await this.jardinService.deleteCulture(culture.id);
     this.parcelles.update(list => list.map(p => ({
-      ...p,
-      cultures: p.cultures.filter(c => c.id !== culture.id),
+      ...p, cultures: p.cultures.filter(c => c.id !== culture.id),
     })));
+    this.parcelleDetail.update(d => d ? {
+      ...d, cultures: d.cultures.filter(c => c.id !== culture.id),
+    } : d);
   }
 
   async changerStatut(culture: CultureFull, statutId: number) {
     const updated = await this.jardinService.updateCulture({ id: culture.id, statutId });
     this.parcelles.update(list => list.map(p => ({
-      ...p,
-      cultures: p.cultures.map(c => c.id === updated.id ? updated : c),
+      ...p, cultures: p.cultures.map(c => c.id === updated.id ? updated : c),
     })));
+    this.parcelleDetail.update(d => d ? {
+      ...d, cultures: d.cultures.map(c => c.id === updated.id ? updated : c),
+    } : d);
   }
 
-  // ── Modal Récolte ─────────────────────────────────────────────────────────────
-  modalRecolteOuvert   = signal(false);
-  cultureSelectionnee  = signal<CultureFull | null>(null);
-  formRecolte          = signal<{ quantite: number; unite: string; notes: string }>({
-    quantite: 0, unite: 'kg', notes: '',
-  });
+  // Modal récolte
+  modalRecolteOuvert  = signal(false);
+  cultureSelectionnee = signal<CultureFull | null>(null);
+  formRecolte         = signal({ quantite: 0, unite: 'kg', notes: '' });
 
   ouvrirRecolte(culture: CultureFull) {
     this.cultureSelectionnee.set(culture);
@@ -213,34 +270,34 @@ export class JardinComponent implements OnInit {
     if (!culture || form.quantite <= 0) return;
 
     const recolte = await this.jardinService.createRecolte({
-      cultureId: culture.id,
-      quantite:  form.quantite,
-      unite:     form.unite,
-      notes:     form.notes || null,
+      cultureId: culture.id, quantite: form.quantite,
+      unite: form.unite, notes: form.notes || null,
     });
 
-    this.parcelles.update(list => list.map(p => ({
-      ...p,
-      cultures: p.cultures.map(c =>
+    const update = (list: ParcelleFull[]) => list.map(p => ({
+      ...p, cultures: p.cultures.map(c =>
         c.id === culture.id ? { ...c, recoltes: [...c.recoltes, recolte] } : c
       ),
-    })));
+    }));
+    this.parcelles.update(update);
+    this.parcelleDetail.update(d => d ? update([d])[0] : d);
     this.fermerModalRecolte();
   }
 
   async supprimerRecolte(culture: CultureFull, recolteId: number) {
     await this.jardinService.deleteRecolte(recolteId);
-    this.parcelles.update(list => list.map(p => ({
-      ...p,
-      cultures: p.cultures.map(c =>
+    const update = (list: ParcelleFull[]) => list.map(p => ({
+      ...p, cultures: p.cultures.map(c =>
         c.id === culture.id
           ? { ...c, recoltes: c.recoltes.filter(r => r.id !== recolteId) }
           : c
       ),
-    })));
+    }));
+    this.parcelles.update(update);
+    this.parcelleDetail.update(d => d ? update([d])[0] : d);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────────
+  // Helpers
   couleurStatut(libelle: string): string {
     switch (libelle) {
       case 'Planifiée':  return 'statut-planifiee';

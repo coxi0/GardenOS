@@ -41,8 +41,6 @@ async function main() {
 
   console.log('Seed StatutCulture OK');
 
-  console.log('Seed CategorieStock OK');
-
   const TypeSol  = ['Argileux', 'Sableux', 'Limoneux', 'Calcaire', 'Humifère']
   for (const libelle of TypeSol) {
     await prisma.typeSol.upsert({
