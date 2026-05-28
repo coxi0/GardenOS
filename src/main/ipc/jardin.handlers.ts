@@ -20,6 +20,11 @@ const includeCulture = {
   recoltes: { orderBy: { date: 'asc' as const } },
 };
 
+function toDate(s: string | null | undefined): Date | null {
+  if (!s) return null;
+  return new Date(s);
+}
+
 function tagsConnectOrCreate(libelles: string[]) {
   return libelles.map(libelle => ({
     where:  { libelle },
@@ -75,10 +80,14 @@ export function registerJardinHandlers() {
   //Cultures
 
   ipcMain.handle('cultures:create', async (_event, dto: CreateCultureDto) => {
-    const { tags = [], ...data } = dto;
+    const { tags = [], dateSemisPrevue, dateRecoltePrevue, dateSemisReelle, dateRecolteReelle, ...data } = dto;
     return db.culture.create({
       data: {
         ...data,
+        dateSemisPrevue:   toDate(dateSemisPrevue)!,
+        dateRecoltePrevue: toDate(dateRecoltePrevue)!,
+        dateSemisReelle:   toDate(dateSemisReelle),
+        dateRecolteReelle: toDate(dateRecolteReelle),
         tags: { create: tags.map(libelle => ({ tag: { connectOrCreate: { where: { libelle }, create: { libelle } } } })) },
       },
       include: includeCulture,
@@ -86,12 +95,15 @@ export function registerJardinHandlers() {
   });
 
   ipcMain.handle('cultures:update', async (_event, dto: UpdateCultureDto) => {
-    const { id, tags, ...data } = dto;
+    const { id, tags, dateSemisPrevue, dateRecoltePrevue, dateSemisReelle, dateRecolteReelle, ...data } = dto;
     return db.culture.update({
       where: { id },
       data: {
         ...data,
-        // Si tags fournis on remplace tous les tags 
+        ...(dateSemisPrevue   !== undefined && { dateSemisPrevue:   toDate(dateSemisPrevue)! }),
+        ...(dateRecoltePrevue !== undefined && { dateRecoltePrevue: toDate(dateRecoltePrevue)! }),
+        ...(dateSemisReelle   !== undefined && { dateSemisReelle:   toDate(dateSemisReelle) }),
+        ...(dateRecolteReelle !== undefined && { dateRecolteReelle: toDate(dateRecolteReelle) }),
         ...(tags !== undefined && {
           tags: {
             deleteMany: {},
