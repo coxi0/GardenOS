@@ -1,0 +1,105 @@
+<div class="page">
+
+  <div class="page-header">
+    <h1>Tableau de bord</h1>
+  </div>
+
+  <div class="stats-grille">
+    <div class="stat-carte">
+      <div class="stat-valeur">{{ parcelles().length }}</div>
+      <div class="stat-label">Parcelles</div>
+    </div>
+    <div class="stat-carte">
+      <div class="stat-valeur">{{ cultures().length }}</div>
+      <div class="stat-label">Cultures</div>
+    </div>
+    <div class="stat-carte">
+      <div class="stat-valeur">{{ totalRecoltes() }}</div>
+      <div class="stat-label">Récoltes enregistrées</div>
+    </div>
+    <div class="stat-carte" [class.alerte]="alertes().length > 0">
+      <div class="stat-valeur">{{ alertes().length }}</div>
+      <div class="stat-label">Alertes stock</div>
+    </div>
+  </div>
+
+  <section>
+    <h2>Cultures par statut</h2>
+    <div class="statuts-grille">
+      @for (groupe of parStatut(); track groupe.libelle) {
+        <div class="statut-colonne">
+          <div class="statut-titre" [class]="couleurStatut(groupe.libelle)">
+            {{ groupe.libelle }}
+            <span class="badge">{{ groupe.cultures.length }}</span>
+          </div>
+          @if (groupe.cultures.length === 0) {
+            <p class="vide">Aucune culture</p>
+          }
+          @for (c of groupe.cultures; track c.id) {
+            <div class="culture-item">
+              <span class="culture-nom">{{ c.plante.nom }}</span>
+              <span class="culture-parcelle">{{ parcellePour(c) }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <div class="agenda-grille">
+
+    <section>
+      <h2>Prochains semis</h2>
+      @if (prochainsSevis().length === 0) {
+        <p class="vide">Aucun semis à venir</p>
+      }
+      @for (c of prochainsSevis(); track c.id) {
+        <div class="agenda-item">
+          <div class="agenda-date">{{ formatDate(c.dateSemisPrevue) }}</div>
+          <div class="agenda-info">
+            <span class="culture-nom">{{ c.plante.nom }}</span>
+            <span class="culture-parcelle">{{ parcellePour(c) }}</span>
+          </div>
+        </div>
+      }
+    </section>
+
+    <section>
+      <h2>Prochaines récoltes</h2>
+      @if (prochainesRecoltes().length === 0) {
+        <p class="vide">Aucune récolte à venir</p>
+      }
+      @for (c of prochainesRecoltes(); track c.id) {
+        <div class="agenda-item">
+          <div class="agenda-date">{{ formatDate(c.dateRecoltePrevue) }}</div>
+          <div class="agenda-info">
+            <span class="culture-nom">{{ c.plante.nom }}</span>
+            <span class="culture-parcelle">{{ parcellePour(c) }}</span>
+          </div>
+        </div>
+      }
+    </section>
+
+  </div>
+
+  @if (alertes().length > 0) {
+    <section>
+      <h2>Alertes stock</h2>
+      <div class="alertes-liste">
+        @for (s of alertes(); track s.id) {
+          <div class="alerte-item">
+            <div class="alerte-info">
+              <span class="alerte-nom">{{ s.nom }}</span>
+              <span class="alerte-categorie">{{ s.categorie?.libelle }}</span>
+            </div>
+            <div class="alerte-quantite">
+              {{ s.quantite }} {{ s.unite }}
+              <span class="alerte-seuil">/ seuil {{ s.seuilAlerte }} {{ s.unite }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+</div>
