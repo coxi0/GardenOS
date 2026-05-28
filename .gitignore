@@ -92,3 +92,6 @@ typings/
 out/
 
 /generated/prisma
+
+# Claude Code
+.claude/
