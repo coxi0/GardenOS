@@ -30,8 +30,22 @@ declare global {
       'recoltes:create':        (data: CreateRecolteDto)  => Promise<Recolte>;
       'recoltes:delete':        (data: { id: number })    => Promise<void>;
       'tags:getAll':            ()                        => Promise<Tag[]>;
-      'statutsCulture:getAll':  ()                        => Promise<StatutCulture[]>;
-      'typesSol:getAll':        ()                        => Promise<TypeSol[]>;
+      'statutsCulture:getAll':    ()                          => Promise<StatutCulture[]>;
+      'typesSol:getAll':          ()                          => Promise<TypeSol[]>;
+      'typePlantes:create':       (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
+      'typePlantes:delete':       (data: { id: number })      => Promise<void>;
+      'typesSol:create':          (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
+      'typesSol:delete':          (data: { id: number })      => Promise<void>;
+      'typesAssociation:getAll':  ()                          => Promise<{ id: number; libelle: string }[]>;
+      'typesAssociation:create':  (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
+      'typesAssociation:delete':  (data: { id: number })      => Promise<void>;
+      'statutsCulture:create':    (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
+      'statutsCulture:delete':    (data: { id: number })      => Promise<void>;
+      'typesAlerte:getAll':       ()                          => Promise<{ id: number; libelle: string }[]>;
+      'typesAlerte:create':       (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
+      'typesAlerte:delete':       (data: { id: number })      => Promise<void>;
+      'categoriesStock:create':   (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
+      'categoriesStock:delete':   (data: { id: number })      => Promise<void>;
     };
   }
 }

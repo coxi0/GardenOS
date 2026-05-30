@@ -54,7 +54,6 @@ export class JardinComponent implements OnInit {
     return cells;
   });
 
-  // Drag & drop
   draggedId = signal<number | null>(null);
 
   onDragStart(parcelle: ParcelleFull) {
@@ -80,7 +79,6 @@ export class JardinComponent implements OnInit {
     this.draggedId.set(null);
   }
 
-  // Modal parcelle
   modalParcelleOuvert = signal(false);
   modeEditionParcelle = signal(false);
   formParcelle        = signal<Partial<ParcelleFull>>({});
@@ -134,7 +132,6 @@ export class JardinComponent implements OnInit {
     this.parcelles.update(list => list.filter(p => p.id !== id));
   }
 
-  // Détail parcelle
   parcelleDetail = signal<ParcelleFull | null>(null);
 
   ouvrirDetail(parcelle: ParcelleFull) {
@@ -145,7 +142,6 @@ export class JardinComponent implements OnInit {
     this.parcelleDetail.set(null);
   }
 
-  // Modal culture
   modalCultureOuvert   = signal(false);
   modeEditionCulture   = signal(false);
   formCulture          = signal<Partial<CultureFull & { tagsLibelles: string[] }>>({});
@@ -248,7 +244,6 @@ export class JardinComponent implements OnInit {
     } : d);
   }
 
-  // Modal récolte
   modalRecolteOuvert  = signal(false);
   cultureSelectionnee = signal<CultureFull | null>(null);
   formRecolte         = signal({ quantite: 0, unite: 'kg', notes: '' });
@@ -296,7 +291,6 @@ export class JardinComponent implements OnInit {
     this.parcelleDetail.update(d => d ? update([d])[0] : d);
   }
 
-  // Helpers
   couleurStatut(libelle: string): string {
     switch (libelle) {
       case 'Planifiée':  return 'statut-planifiee';

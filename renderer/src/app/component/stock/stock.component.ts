@@ -13,7 +13,6 @@ export class StockComponent implements OnInit {
   private stockService  = inject(StockService);
   private planteService = inject(PlanteService);
 
-  // ── Données ──────────────────────────────────────────────────────────────────
   stocks     = signal<StockItem[]>([]);
   categories = signal<CategorieStock[]>([]);
   plantes    = signal<Plante[]>([]);
@@ -29,7 +28,6 @@ export class StockComponent implements OnInit {
     this.plantes.set(plantes);
   }
 
-  // ── Filtrage ─────────────────────────────────────────────────────────────────
   recherche       = signal('');
   filtreCategorie = signal<number | null>(null);
 
@@ -43,7 +41,6 @@ export class StockComponent implements OnInit {
     });
   });
 
-  // ── Modal ────────────────────────────────────────────────────────────────────
   modalOuvert  = signal(false);
   modeEdition  = signal(false);
   formStock    = signal<Partial<StockItem>>({});
@@ -107,7 +104,6 @@ export class StockComponent implements OnInit {
     this.stocks.update(liste => liste.filter(s => s.id !== id));
   }
 
-  // ── Alerte seuil ─────────────────────────────────────────────────────────────
   enAlerte(item: StockItem): boolean {
     return item.seuilAlerte !== null && item.quantite <= item.seuilAlerte;
   }

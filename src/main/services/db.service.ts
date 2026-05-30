@@ -3,7 +3,6 @@ import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { app } from 'electron';
 import path from 'node:path';
 
-// En prod : userData (persistent). En dev : __dirname = .vite/build/, ../../ = racine projet.
 function getDbPath(): string {
   if (app.isPackaged) {
     return path.join(app.getPath('userData'), 'gardenos.db');
