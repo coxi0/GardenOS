@@ -1,5 +1,4 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { JardinService, ParcelleFull, CultureFull } from '../../services/jardin.service';
 import { StockService, StockItem } from '../../services/stock.service';
 
@@ -7,7 +6,7 @@ import { StockService, StockItem } from '../../services/stock.service';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
-  imports: [RouterLink],
+  imports: [],
 })
 export class DashboardComponent implements OnInit {
 
