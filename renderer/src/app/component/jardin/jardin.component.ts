@@ -40,7 +40,6 @@ export class JardinComponent implements OnInit {
     this.tags.set(tags);
   }
 
-  // Grille
   readonly COLS = 4;
   readonly ROWS = 4;
 

@@ -1,0 +1,126 @@
+.page { padding: 2rem; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem; }
+
+.page-header h1 { margin: 0; font-size: 1.8rem; }
+
+h2 { margin: 0 0 1rem; font-size: 1.1rem; color: #1b4332; }
+
+.stats-grille {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.stat-carte {
+  background: #f0faf3;
+  border: 1px solid #d1ead9;
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+}
+
+.stat-carte.alerte {
+  background: #fff5f5;
+  border-color: #f5c6cb;
+}
+
+.stat-valeur { font-size: 2rem; font-weight: 700; color: #1b4332; }
+.stat-carte.alerte .stat-valeur { color: #c0392b; }
+.stat-label { font-size: 0.82rem; color: #666; margin-top: 0.2rem; }
+
+.statuts-grille {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.statut-colonne {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.statut-titre {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.badge {
+  background: rgba(0,0,0,0.12);
+  border-radius: 10px;
+  padding: 0.05rem 0.45rem;
+  font-size: 0.75rem;
+}
+
+.statut-planifiee  { background: #e3f2fd; color: #1565c0; }
+.statut-en-cours   { background: #fff8e1; color: #f57f17; }
+.statut-recoltee   { background: #e8f5e9; color: #2e7d32; }
+.statut-abandonnee { background: #fce4ec; color: #880e4f; }
+
+.culture-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0.5rem;
+  border-radius: 5px;
+  background: white;
+  border: 1px solid #eee;
+  gap: 0.1rem;
+}
+
+.culture-nom { font-size: 0.85rem; font-weight: 500; color: #222; }
+.culture-parcelle { font-size: 0.75rem; color: #999; }
+
+.agenda-grille {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.agenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  margin-bottom: 0.4rem;
+}
+
+.agenda-date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2d6a4f;
+  min-width: 72px;
+}
+
+.agenda-info { display: flex; flex-direction: column; gap: 0.1rem; }
+
+.alertes-liste { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.alerte-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: #fff5f5;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+}
+
+.alerte-info { display: flex; flex-direction: column; gap: 0.1rem; }
+.alerte-nom { font-size: 0.9rem; font-weight: 600; color: #c0392b; }
+.alerte-categorie { font-size: 0.75rem; color: #999; }
+.alerte-quantite { font-size: 0.85rem; font-weight: 600; color: #c0392b; }
+.alerte-seuil { font-size: 0.75rem; font-weight: 400; color: #999; }
+
+.vide { color: #bbb; font-style: italic; font-size: 0.85rem; margin: 0; }
