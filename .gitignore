@@ -93,5 +93,10 @@ out/
 
 /generated/prisma
 
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
 # Claude Code
 .claude/

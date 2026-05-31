@@ -12,7 +12,6 @@ export class PlantesComponent implements OnInit {
   private planteService = inject(PlanteService);
   private wikipedia = inject(WikipediaService);
 
-  // ── Wikipedia ────────────────────────────────────────────────────────────────
   wikiRecherche = signal('');
   wikiChargement = signal(false);
   wikiResultat = signal<WikiResultat | null>(null);
@@ -46,7 +45,6 @@ export class PlantesComponent implements OnInit {
     }
   }
 
-  // ── Données ──────────────────────────────────────────────────────────────────
   plantes = signal<Plante[]>([]);
   typePlantes = signal<TypePlante[]>([]);
 
@@ -59,7 +57,6 @@ export class PlantesComponent implements OnInit {
     this.typePlantes.set(types);
   }
 
-  // ── Recherche ────────────────────────────────────────────────────────────────
   recherche = signal('');
 
   plantesFiltrees = computed(() => {
@@ -72,7 +69,6 @@ export class PlantesComponent implements OnInit {
     );
   });
 
-  // ── Modal ────────────────────────────────────────────────────────────────────
   modalOuvert = signal(false);
   modeEdition = signal(false);
   formPlante = signal<Partial<Plante>>({});

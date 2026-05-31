@@ -53,9 +53,6 @@ export interface UpdatePlanteDto {
 @Injectable({ providedIn: 'root' })
 export class PlanteService {
 
-  // Chaque méthode délègue au main process via window.electronAPI.
-  // Le preload (contextBridge) fait le pont entre Angular et Electron.
-
   getAll(): Promise<Plante[]> {
     return window.electronAPI['plantes:getAll']();
   }

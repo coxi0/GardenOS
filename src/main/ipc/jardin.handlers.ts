@@ -25,16 +25,8 @@ function toDate(s: string | null | undefined): Date | null {
   return new Date(s);
 }
 
-function tagsConnectOrCreate(libelles: string[]) {
-  return libelles.map(libelle => ({
-    where:  { libelle },
-    create: { libelle },
-  }));
-}
-
 export function registerJardinHandlers() {
   const db = getDb();
-
 
   ipcMain.handle('statutsCulture:getAll', async () => {
     return db.statutCulture.findMany({ orderBy: { libelle: 'asc' } });
@@ -47,8 +39,6 @@ export function registerJardinHandlers() {
   ipcMain.handle('tags:getAll', async () => {
     return db.tag.findMany({ orderBy: { libelle: 'asc' } });
   });
-
-  // Parcell
 
   ipcMain.handle('parcelles:getAll', async () => {
     return db.parcelle.findMany({
@@ -76,8 +66,6 @@ export function registerJardinHandlers() {
   ipcMain.handle('parcelles:delete', async (_event, { id }: { id: number }) => {
     await db.parcelle.delete({ where: { id } });
   });
-
-  //Cultures
 
   ipcMain.handle('cultures:create', async (_event, dto: CreateCultureDto) => {
     const { tags = [], dateSemisPrevue, dateRecoltePrevue, dateSemisReelle, dateRecolteReelle, ...data } = dto;
@@ -118,8 +106,6 @@ export function registerJardinHandlers() {
   ipcMain.handle('cultures:delete', async (_event, { id }: { id: number }) => {
     await db.culture.delete({ where: { id } });
   });
-
-  // Récoltes
 
   ipcMain.handle('recoltes:create', async (_event, dto: CreateRecolteDto) => {
     return db.recolte.create({ data: dto });

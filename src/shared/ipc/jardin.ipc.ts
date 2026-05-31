@@ -50,8 +50,6 @@ export interface ParcelleFull {
   cultures: CultureFull[];
 }
 
-// ── DTOs ─────────────────────────────────────────────────────────────────────
-
 export interface CreateParcelleDto {
   nom: string;
   superficie?: number | null;
@@ -82,7 +80,7 @@ export interface CreateCultureDto {
   planteId: number;
   parcelleId: number;
   statutId: number;
-  tags?: string[];  // libellés — créés à la volée si inexistants
+  tags?: string[];
 }
 
 export interface UpdateCultureDto {
@@ -95,7 +93,7 @@ export interface UpdateCultureDto {
   planteId?: number;
   parcelleId?: number;
   statutId?: number;
-  tags?: string[];  // remplace tous les tags existants
+  tags?: string[];
 }
 
 export interface CreateRecolteDto {
@@ -104,8 +102,6 @@ export interface CreateRecolteDto {
   unite: string;
   notes?: string | null;
 }
-
-// ── Canaux ────────────────────────────────────────────────────────────────────
 
 export interface JardinChannels {
   'parcelles:getAll':       { request: void;               response: ParcelleFull[]  };
