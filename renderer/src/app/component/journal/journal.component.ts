@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JournalService, JournalEntry } from '../../services/journal.service';
 import { JardinService, ParcelleFull } from '../../services/jardin.service';
@@ -23,12 +23,16 @@ export class JournalComponent implements OnInit {
   parcelles = signal<ParcelleFull[]>([]);
 
   async ngOnInit() {
-    const [entrees, parcelles] = await Promise.all([
-      this.journalService.getAll(),
-      this.jardinService.getParcelles(),
-    ]);
-    this.entrees.set(entrees);
-    this.parcelles.set(parcelles);
+    try {
+      const [entrees, parcelles] = await Promise.all([
+        this.journalService.getAll(),
+        this.jardinService.getParcelles(),
+      ]);
+      this.entrees.set(entrees);
+      this.parcelles.set(parcelles);
+    } catch (err) {
+      console.error('[journal:ngOnInit]', err);
+    }
   }
 
   cultures = computed<CultureOption[]>(() =>
@@ -42,6 +46,13 @@ export class JournalComponent implements OnInit {
 
   recherche       = signal('');
   filtreCultureId = signal<number | null>(null);
+
+  constructor() {
+    effect(() => {
+      this.filtreCultureId();
+      this.recherche.set('');
+    });
+  }
 
   entreesFiltrees = computed(() => {
     const terme     = this.recherche().toLowerCase();
@@ -87,29 +98,35 @@ export class JournalComponent implements OnInit {
     const contenu   = this.formContenu().trim();
     const cultureId = this.formCultureId();
     if (!contenu || !cultureId) return;
-
-    if (this.modeEdition()) {
-      const updated = await this.journalService.update({
-        id:      this.editId()!,
-        contenu,
-        date:    this.formDate(),
-      });
-      this.entrees.update(liste => liste.map(e => e.id === updated.id ? updated : e));
-    } else {
-      const created = await this.journalService.create({
-        contenu,
-        cultureId,
-        date: this.formDate(),
-      });
-      this.entrees.update(liste => [created, ...liste]);
+    try {
+      if (this.modeEdition()) {
+        const updated = await this.journalService.update({
+          id:      this.editId()!,
+          contenu,
+          date:    this.formDate(),
+        });
+        this.entrees.update(liste => liste.map(e => e.id === updated.id ? updated : e));
+      } else {
+        const created = await this.journalService.create({
+          contenu,
+          cultureId,
+          date: this.formDate(),
+        });
+        this.entrees.update(liste => [created, ...liste]);
+      }
+      this.fermerModal();
+    } catch (err) {
+      console.error('[journal:sauvegarder]', err);
     }
-
-    this.fermerModal();
   }
 
   async supprimer(id: number) {
-    await this.journalService.delete(id);
-    this.entrees.update(liste => liste.filter(e => e.id !== id));
+    try {
+      await this.journalService.delete(id);
+      this.entrees.update(liste => liste.filter(e => e.id !== id));
+    } catch (err) {
+      console.error('[journal:supprimer]', err);
+    }
   }
 
   formatDate(iso: string): string {

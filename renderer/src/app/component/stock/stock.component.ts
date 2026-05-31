@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { StockItem, CategorieStock, StockService } from '../../services/stock.service';
 import { PlanteService } from '../../services/plante.service';
 import type { Plante } from '../../services/plante.service';
@@ -18,18 +18,30 @@ export class StockComponent implements OnInit {
   plantes    = signal<Plante[]>([]);
 
   async ngOnInit() {
-    const [stocks, categories, plantes] = await Promise.all([
-      this.stockService.getAll(),
-      this.stockService.getCategories(),
-      this.planteService.getAll(),
-    ]);
-    this.stocks.set(stocks);
-    this.categories.set(categories);
-    this.plantes.set(plantes);
+    try {
+      const [stocks, categories, plantes] = await Promise.all([
+        this.stockService.getAll(),
+        this.stockService.getCategories(),
+        this.planteService.getAll(),
+      ]);
+      this.stocks.set(stocks);
+      this.categories.set(categories);
+      this.plantes.set(plantes);
+    } catch (err) {
+      console.error('[stock:ngOnInit]', err);
+    }
   }
 
   recherche       = signal('');
   filtreCategorie = signal<number | null>(null);
+
+  constructor() {
+    effect(() => {
+      const epuises = this.stocks().filter(s => s.quantite === 0);
+      if (epuises.length > 0)
+        console.warn(`[stock] ${epuises.length} article(s) épuisé(s).`);
+    });
+  }
 
   stocksFiltres = computed(() => {
     const terme = this.recherche().toLowerCase();
@@ -70,38 +82,44 @@ export class StockComponent implements OnInit {
   async sauvegarder() {
     const form = this.formStock();
     if (!form.nom || !form.categorieId) return;
-
-    if (this.modeEdition()) {
-      const updated = await this.stockService.update({
-        id:          form.id!,
-        nom:         form.nom,
-        quantite:    form.quantite,
-        unite:       form.unite,
-        seuilAlerte: form.seuilAlerte,
-        notes:       form.notes,
-        categorieId: form.categorieId,
-        planteId:    form.planteId,
-      });
-      this.stocks.update(liste => liste.map(s => s.id === updated.id ? updated : s));
-    } else {
-      const created = await this.stockService.create({
-        nom:         form.nom,
-        quantite:    form.quantite ?? 0,
-        unite:       form.unite ?? 'unité',
-        seuilAlerte: form.seuilAlerte,
-        notes:       form.notes,
-        categorieId: form.categorieId,
-        planteId:    form.planteId,
-      });
-      this.stocks.update(liste => [...liste, created]);
+    try {
+      if (this.modeEdition()) {
+        const updated = await this.stockService.update({
+          id:          form.id!,
+          nom:         form.nom,
+          quantite:    form.quantite,
+          unite:       form.unite,
+          seuilAlerte: form.seuilAlerte,
+          notes:       form.notes,
+          categorieId: form.categorieId,
+          planteId:    form.planteId,
+        });
+        this.stocks.update(liste => liste.map(s => s.id === updated.id ? updated : s));
+      } else {
+        const created = await this.stockService.create({
+          nom:         form.nom,
+          quantite:    form.quantite ?? 0,
+          unite:       form.unite ?? 'unité',
+          seuilAlerte: form.seuilAlerte,
+          notes:       form.notes,
+          categorieId: form.categorieId,
+          planteId:    form.planteId,
+        });
+        this.stocks.update(liste => [...liste, created]);
+      }
+      this.fermerModal();
+    } catch (err) {
+      console.error('[stock:sauvegarder]', err);
     }
-
-    this.fermerModal();
   }
 
   async supprimer(id: number) {
-    await this.stockService.delete(id);
-    this.stocks.update(liste => liste.filter(s => s.id !== id));
+    try {
+      await this.stockService.delete(id);
+      this.stocks.update(liste => liste.filter(s => s.id !== id));
+    } catch (err) {
+      console.error('[stock:supprimer]', err);
+    }
   }
 
   enAlerte(item: StockItem): boolean {
