@@ -47,17 +47,13 @@ npx prisma db seed
 npm run start
 ```
 
-> Pour le développement avec hot-reload Angular :
-> ```bash
-> npm run dev
-> ```
+Lance simultanément le serveur Angular (hot-reload) et Electron.
 
 ## Scripts disponibles
 
 | Commande | Description |
 |----------|-------------|
-| `npm run start` | Lance l'application Electron |
-| `npm run dev` | Développement avec hot-reload (Angular + Electron) |
+| `npm run start` | Lance Angular + Electron en mode développement |
 | `npm run build` | Build complet (Angular + Electron package) |
 | `npm run prisma:generate` | Régénère le client Prisma |
 | `npm run prisma:migrate` | Crée et applique une nouvelle migration |

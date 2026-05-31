@@ -12,7 +12,7 @@
     "dev:electron": "wait-on http://localhost:4200 && electron-forge start",
     "build": "npm run build:angular && electron-forge package",
     "build:angular": "npm run build --prefix renderer",
-    "start": "electron-forge start",
+    "start": "concurrently -k -n \"ANGULAR,ELECTRON\" -c \"cyan,green\" \"npm run dev:angular\" \"npm run dev:electron\"",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
