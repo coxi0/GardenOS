@@ -9,6 +9,7 @@ interface CultureOption {
 }
 
 @Component({
+  standalone: true,
   selector: 'app-journal',
   templateUrl: './journal.component.html',
   styleUrl: './journal.component.css',

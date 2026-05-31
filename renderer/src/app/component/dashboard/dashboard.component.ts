@@ -4,6 +4,7 @@ import { StockService, StockItem } from '../../services/stock.service';
 import { PlanteService } from '../../services/plante.service';
 
 @Component({
+  standalone: true,
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',

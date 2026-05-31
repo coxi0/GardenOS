@@ -10,6 +10,7 @@ interface GridCell {
 }
 
 @Component({
+  standalone: true,
   selector: 'app-jardin',
   templateUrl: './jardin.component.html',
   styleUrl: './jardin.component.css',

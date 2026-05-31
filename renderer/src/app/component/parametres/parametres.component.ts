@@ -12,6 +12,7 @@ interface Section {
 }
 
 @Component({
+  standalone: true,
   selector: 'app-parametres',
   templateUrl: './parametres.component.html',
   styleUrl: './parametres.component.css',

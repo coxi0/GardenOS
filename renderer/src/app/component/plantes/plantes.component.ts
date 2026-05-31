@@ -5,6 +5,7 @@ import { Plante, PlanteService, TypePlante } from '../../services/plante.service
 import { PlanteCardComponent } from './plante-card/plante-card.component';
 
 @Component({
+  standalone: true,
   selector: 'app-plantes',
   templateUrl: './plantes.component.html',
   styleUrl: './plantes.component.css',

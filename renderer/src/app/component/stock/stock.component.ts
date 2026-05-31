@@ -4,6 +4,7 @@ import { PlanteService } from '../../services/plante.service';
 import type { Plante } from '../../services/plante.service';
 
 @Component({
+  standalone: true,
   selector: 'app-stock',
   templateUrl: './stock.component.html',
   styleUrl: './stock.component.css',
