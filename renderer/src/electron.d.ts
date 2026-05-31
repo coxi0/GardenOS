@@ -1,4 +1,5 @@
 import type { CreatePlanteDto, UpdatePlanteDto, Plante, TypePlante, WikipediaResult } from '../../src/shared/ipc/plante.ipc';
+import type { JournalEntry, CreateJournalDto, UpdateJournalDto } from '../../src/shared/ipc/journal.ipc';
 import type { StockItem, CategorieStock, CreateStockItemDto, UpdateStockItemDto } from '../../src/shared/ipc/stock.ipc';
 import type { ParcelleFull, CultureFull, Recolte, Tag, StatutCulture, TypeSol, CreateParcelleDto, UpdateParcelleDto, CreateCultureDto, UpdateCultureDto, CreateRecolteDto } from '../../src/shared/ipc/jardin.ipc';
 // Déclare à TypeScript ce que le preload a exposé via contextBridge.
@@ -37,16 +38,15 @@ declare global {
       'typePlantes:delete':       (data: { id: number })      => Promise<void>;
       'typesSol:create':          (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
       'typesSol:delete':          (data: { id: number })      => Promise<void>;
-      'typesAssociation:getAll':  ()                          => Promise<{ id: number; libelle: string }[]>;
-      'typesAssociation:create':  (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
-      'typesAssociation:delete':  (data: { id: number })      => Promise<void>;
       'statutsCulture:create':    (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
       'statutsCulture:delete':    (data: { id: number })      => Promise<void>;
-      'typesAlerte:getAll':       ()                          => Promise<{ id: number; libelle: string }[]>;
-      'typesAlerte:create':       (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
-      'typesAlerte:delete':       (data: { id: number })      => Promise<void>;
       'categoriesStock:create':   (data: { libelle: string }) => Promise<{ id: number; libelle: string }>;
       'categoriesStock:delete':   (data: { id: number })      => Promise<void>;
+      'journal:getAll':           ()                              => Promise<JournalEntry[]>;
+      'journal:getByCulture':     (data: { cultureId: number })  => Promise<JournalEntry[]>;
+      'journal:create':           (data: CreateJournalDto)        => Promise<JournalEntry>;
+      'journal:update':           (data: UpdateJournalDto)        => Promise<JournalEntry>;
+      'journal:delete':           (data: { id: number })          => Promise<void>;
     };
   }
 }

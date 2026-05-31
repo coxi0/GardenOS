@@ -4,6 +4,7 @@ import { PlantesComponent } from './component/plantes/plantes.component';
 import { StockComponent } from './component/stock/stock.component';
 import { JardinComponent } from './component/jardin/jardin.component';
 import { ParametresComponent } from './component/parametres/parametres.component';
+import { JournalComponent } from './component/journal/journal.component';
 
 export const routes: Routes = [
     { path: '',           redirectTo: 'dashboard', pathMatch: 'full' },
@@ -11,5 +12,6 @@ export const routes: Routes = [
     { path: 'jardin',     component: JardinComponent     },
     { path: 'plantes',    component: PlantesComponent    },
     { path: 'stock',      component: StockComponent      },
+    { path: 'journal',    component: JournalComponent    },
     { path: 'parametres', component: ParametresComponent },
 ];

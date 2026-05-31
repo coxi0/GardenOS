@@ -1,0 +1,205 @@
+.page {
+  padding: 2rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 { margin: 0; font-size: 1.8rem; }
+
+.btn-primary {
+  background: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.btn-primary:hover    { background: #1b4332; }
+.btn-primary:disabled { background: #95d5b2; cursor: not-allowed; }
+
+.filtres-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.filtres-bar input  { flex: 2; padding: 0.7rem 1rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+.filtres-bar select { flex: 1; padding: 0.7rem 1rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; background: white; }
+
+/* ── Timeline ────────────────────────────────────────────────────────────── */
+
+.entrees-liste {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 32px;
+}
+
+.entrees-liste::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #d8f3dc;
+}
+
+.entree-carte {
+  position: relative;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: box-shadow 0.15s;
+}
+
+.entree-carte:hover {
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.entree-carte::before {
+  content: '';
+  position: absolute;
+  left: -27px;
+  top: 18px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #d8f3dc;
+}
+
+/* ── Contenu carte ───────────────────────────────────────────────────────── */
+
+.entree-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.entree-date {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #888;
+  white-space: nowrap;
+}
+
+.badge-culture {
+  display: inline-block;
+  background: #d8f3dc;
+  color: #1b4332;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.entree-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.entree-actions button {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  background: white;
+}
+.entree-actions button:hover { background: #f5f5f5; }
+.entree-actions .btn-danger { color: #c0392b; border-color: #e0a0a0; }
+.entree-actions .btn-danger:hover { background: #fdf2f2; }
+
+.entree-contenu {
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* ── Vide ────────────────────────────────────────────────────────────────── */
+
+.vide {
+  text-align: center;
+  color: #aaa;
+  padding: 4rem 0;
+  font-style: italic;
+}
+
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  width: 540px;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 1.5rem;
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { margin: 0; font-size: 1.2rem; }
+.modal-header button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; }
+
+.form-champs { display: flex; flex-direction: column; gap: 0.9rem; }
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+label input, label textarea, label select {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: white;
+}
+
+label textarea { resize: vertical; min-height: 120px; }
+
+.modal-footer { display: flex; justify-content: flex-end; gap: 0.8rem; }
+.modal-footer button:first-child {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
