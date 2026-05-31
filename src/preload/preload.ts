@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   'plantes:delete':          (data: { id: number })    => ipcRenderer.invoke('plantes:delete', data),
   'plantes:scrapeWikipedia': (data: { nom: string })   => ipcRenderer.invoke('plantes:scrapeWikipedia', data),
   'typePlantes:getAll':      ()                        => ipcRenderer.invoke('typePlantes:getAll'),
+  'plantes:count':           ()                        => ipcRenderer.invoke('plantes:count'),
   'stocks:getAll':          ()                        => ipcRenderer.invoke('stocks:getAll'),
   'stocks:getById':         (data: { id: number })    => ipcRenderer.invoke('stocks:getById', data),
   'stocks:create':          (data: CreateStockItemDto) => ipcRenderer.invoke('stocks:create', data),

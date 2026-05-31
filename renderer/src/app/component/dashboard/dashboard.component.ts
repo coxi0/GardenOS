@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { JardinService, ParcelleFull, CultureFull } from '../../services/jardin.service';
 import { StockService, StockItem } from '../../services/stock.service';
+import { PlanteService } from '../../services/plante.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,17 +13,21 @@ export class DashboardComponent implements OnInit {
 
   private jardinService = inject(JardinService);
   private stockService  = inject(StockService);
+  private planteService = inject(PlanteService);
 
-  parcelles = signal<ParcelleFull[]>([]);
-  stocks    = signal<StockItem[]>([]);
+  parcelles    = signal<ParcelleFull[]>([]);
+  stocks       = signal<StockItem[]>([]);
+  totalPlantes = signal<number>(0);
 
   async ngOnInit() {
-    const [parcelles, stocks] = await Promise.all([
+    const [parcelles, stocks, totalPlantes] = await Promise.all([
       this.jardinService.getParcelles(),
       this.stockService.getAll(),
+      this.planteService.count(),
     ]);
     this.parcelles.set(parcelles);
     this.stocks.set(stocks);
+    this.totalPlantes.set(totalPlantes);
   }
 
   cultures = computed(() =>

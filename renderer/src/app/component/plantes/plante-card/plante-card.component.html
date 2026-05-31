@@ -1,0 +1,25 @@
+<div class="plante-carte">
+
+  <div class="carte-badges">
+    <span class="plante-type">{{ plante().typePlante?.libelle }}</span>
+    @if (plante().ensoleillement) {
+      <span class="plante-soleil">{{ plante().ensoleillement }}</span>
+    }
+  </div>
+
+  <h3>{{ plante().nom }}</h3>
+  <p class="nom-latin">{{ plante().nomLatin }}</p>
+  <p class="description">{{ plante().description }}</p>
+
+  <div class="plante-infos">
+    <span>🌱 Semis : mois {{ plante().moisSemisDebut }} → {{ plante().moisSemisFin }}</span>
+    <span>💧 Arrosage : tous les {{ plante().joursArrosage }} jours</span>
+    <span>⏳ Maturation : {{ plante().joursMaturation }} jours</span>
+  </div>
+
+  <div class="carte-actions">
+    <button (click)="editer.emit(plante())">Modifier</button>
+    <button (click)="supprimer.emit(plante().id)">Supprimer</button>
+  </div>
+
+</div>

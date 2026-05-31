@@ -57,6 +57,10 @@ export class PlanteService {
     return window.electronAPI['plantes:getAll']();
   }
 
+  count(): Promise<number> {
+    return window.electronAPI['plantes:count']();
+  }
+
   getTypePlantes(): Promise<TypePlante[]> {
     return window.electronAPI['typePlantes:getAll']();
   }

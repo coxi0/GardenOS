@@ -1,0 +1,87 @@
+.plante-carte {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.2rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.carte-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.plante-type {
+  display: inline-block;
+  background: #d8f3dc;
+  color: #1b4332;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.plante-soleil {
+  display: inline-block;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.plante-carte h3 {
+  margin: 0.3rem 0;
+  font-size: 1.1rem;
+}
+
+.nom-latin {
+  color: #888;
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0.6rem;
+}
+
+.description {
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.plante-infos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.carte-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carte-actions button {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  background: white;
+}
+
+.carte-actions button:hover { background: #f5f5f5; }
+
+.carte-actions button:last-child {
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+.carte-actions button:last-child:hover { background: #fdf2f2; }

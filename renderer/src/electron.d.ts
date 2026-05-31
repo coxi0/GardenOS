@@ -14,6 +14,7 @@ declare global {
       'plantes:delete':          (data: { id: number })    => Promise<void>;
       'plantes:scrapeWikipedia': (data: { nom: string })   => Promise<WikipediaResult | null>;
       'typePlantes:getAll':      ()                        => Promise<TypePlante[]>;
+      'plantes:count':           ()                        => Promise<number>;
       'stocks:getAll':          ()                        => Promise<StockItem[]>;
       'stocks:getById':         (data: { id: number })    => Promise<StockItem | null>;
       'stocks:create':          (data: CreateStockItemDto) => Promise<StockItem>;

@@ -9,6 +9,10 @@ export function registerPlanteHandlers() {
     return db.typePlante.findMany({ orderBy: { libelle: 'asc' } });
   });
 
+  ipcMain.handle('plantes:count', async () => {
+    return db.plante.count();
+  });
+
   ipcMain.handle('plantes:getAll', async () => {
     return db.plante.findMany({
       include: { typePlante: true },
