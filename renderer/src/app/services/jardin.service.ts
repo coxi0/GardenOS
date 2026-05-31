@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import type {
-  ParcelleFull, CultureFull, Recolte, Tag, StatutCulture, TypeSol,
+  ParcelleFull, CultureFull, Recolte, Tag, StatutCulture, TypeSol, Exposition,
   CreateParcelleDto, UpdateParcelleDto,
   CreateCultureDto, UpdateCultureDto,
   CreateRecolteDto,
 } from '../../../../src/shared/ipc/jardin.ipc';
 
-export type { ParcelleFull, CultureFull, Recolte, Tag, StatutCulture, TypeSol };
+export type { ParcelleFull, CultureFull, Recolte, Tag, StatutCulture, TypeSol, Exposition };
 
 /**
  * Service Angular du jardin : parcelles, cultures, récoltes, tags et référentiels.

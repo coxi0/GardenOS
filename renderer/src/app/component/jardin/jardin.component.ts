@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { JardinService, ParcelleFull, CultureFull, Recolte, StatutCulture, TypeSol, Tag } from '../../services/jardin.service';
+import { JardinService, ParcelleFull, CultureFull, StatutCulture, TypeSol, Tag } from '../../services/jardin.service';
+import type { Exposition } from '../../services/jardin.service';
 import { PlanteService } from '../../services/plante.service';
 import type { Plante } from '../../services/plante.service';
 
@@ -365,6 +366,19 @@ export class JardinComponent implements OnInit {
   }
 
   // ── Utilitaires ──────────────────────────────────────────────────────────────
+
+  /** Valeurs de l'enum Exposition disponibles pour le formulaire de parcelle. */
+  readonly expositions: Exposition[] = ['PLEIN_SOLEIL', 'MI_OMBRE', 'OMBRE'];
+
+  /** Retourne le label lisible correspondant à une valeur d'exposition. */
+  labelExposition(e: Exposition | null): string {
+    switch (e) {
+      case 'PLEIN_SOLEIL': return 'Plein soleil';
+      case 'MI_OMBRE':     return 'Mi-ombre';
+      case 'OMBRE':        return 'Ombre';
+      default:             return '—';
+    }
+  }
 
   /** Retourne la classe CSS correspondant au statut d'une culture. */
   couleurStatut(libelle: string): string {

@@ -1,11 +1,17 @@
+enum Exposition {
+  PLEIN_SOLEIL
+  MI_OMBRE
+  OMBRE
+}
+
 model Parcelle {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   nom        String
   superficie Float?
-  exposition String?
+  exposition Exposition?
   notes      String?
-  posX       Int      @default(0)
-  posY       Int      @default(0)
+  posX       Int         @default(0)
+  posY       Int         @default(0)
 
   typeSolId Int?
   typeSol   TypeSol? @relation(fields: [typeSolId], references: [id])

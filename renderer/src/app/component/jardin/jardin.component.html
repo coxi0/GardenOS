@@ -27,7 +27,7 @@
               <span>{{ cell.parcelle.superficie }} m²</span>
             }
             @if (cell.parcelle.exposition) {
-              <span>{{ cell.parcelle.exposition }}</span>
+              <span>{{ labelExposition(cell.parcelle.exposition) }}</span>
             }
           </div>
 
@@ -70,7 +70,7 @@
             <h2>{{ parcelleDetail()!.nom }}</h2>
             <span class="detail-meta">
               @if (parcelleDetail()!.superficie) { {{ parcelleDetail()!.superficie }} m² · }
-              @if (parcelleDetail()!.exposition) { {{ parcelleDetail()!.exposition }} }
+              @if (parcelleDetail()!.exposition) { {{ labelExposition(parcelleDetail()!.exposition) }} }
             </span>
           </div>
           <div class="detail-header-actions">
@@ -163,9 +163,12 @@
                 (input)="formParcelle.update(f => ({...f, superficie: +$any($event.target).value || null}))" />
             </label>
             <label>Exposition
-              <input type="text" placeholder="Ex: Plein sud"
-                [value]="formParcelle().exposition ?? ''"
-                (input)="formParcelle.update(f => ({...f, exposition: $any($event.target).value || null}))" />
+              <select (change)="formParcelle.update(f => ({...f, exposition: $any($event.target).value || null}))">
+                <option value="">— Aucune —</option>
+                @for (e of expositions; track e) {
+                  <option [value]="e" [selected]="formParcelle().exposition === e">{{ labelExposition(e) }}</option>
+                }
+              </select>
             </label>
           </div>
           <label>Type de sol

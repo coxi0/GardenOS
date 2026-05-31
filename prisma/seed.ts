@@ -126,7 +126,7 @@ async function main() {
     prisma.parcelle.create({
       data: {
         nom: 'Potager principal', superficie: 12.0,
-        exposition: 'Sud', typeSolId: typeSolLimoneux.id,
+        exposition: 'PLEIN_SOLEIL', typeSolId: typeSolLimoneux.id,
         notes: 'Pleine exposition sud, sol bien drainé.',
         posX: 0, posY: 0,
       },
@@ -134,7 +134,7 @@ async function main() {
     prisma.parcelle.create({
       data: {
         nom: 'Carré aromatiques', superficie: 4.0,
-        exposition: 'Sud-Est', typeSolId: typeSolSableux.id,
+        exposition: 'PLEIN_SOLEIL', typeSolId: typeSolSableux.id,
         notes: 'Réservé aux herbes aromatiques.',
         posX: 1, posY: 0,
       },
@@ -142,7 +142,7 @@ async function main() {
     prisma.parcelle.create({
       data: {
         nom: 'Coin fruits', superficie: 6.0,
-        exposition: 'Est', typeSolId: typeSolLimoneux.id,
+        exposition: 'MI_OMBRE', typeSolId: typeSolLimoneux.id,
         notes: "Mi-ombre l'après-midi, idéal pour les fraisiers.",
         posX: 0, posY: 1,
       },

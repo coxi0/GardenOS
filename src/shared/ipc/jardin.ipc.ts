@@ -1,3 +1,6 @@
+/** Exposition solaire d'une parcelle. */
+export type Exposition = 'PLEIN_SOLEIL' | 'MI_OMBRE' | 'OMBRE';
+
 /** Tag associé à une culture. */
 export interface Tag {
   id: number;
@@ -48,7 +51,7 @@ export interface ParcelleFull {
   id: number;
   nom: string;
   superficie: number | null;
-  exposition: string | null;
+  exposition: Exposition | null;
   notes: string | null;
   typeSolId: number | null;
   posX: number;
@@ -60,7 +63,7 @@ export interface ParcelleFull {
 export interface CreateParcelleDto {
   nom: string;
   superficie?: number | null;
-  exposition?: string | null;
+  exposition?: Exposition | null;
   notes?: string | null;
   typeSolId?: number | null;
   posX?: number;
@@ -72,7 +75,7 @@ export interface UpdateParcelleDto {
   id: number;
   nom?: string;
   superficie?: number | null;
-  exposition?: string | null;
+  exposition?: Exposition | null;
   notes?: string | null;
   typeSolId?: number | null;
   posX?: number;
