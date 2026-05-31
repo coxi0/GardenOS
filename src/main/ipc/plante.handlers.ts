@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import { getDb } from '../services/db.service';
-import type { CreatePlanteDto, UpdatePlanteDto, WikipediaResult } from '../../shared/ipc/plante.ipc';
+import type { CreatePlanteDto, UpdatePlanteDto } from '../../shared/ipc/plante.ipc';
 
 /**
  * Enregistre tous les handlers IPC liés aux plantes et types de plante.
@@ -57,26 +57,5 @@ export function registerPlanteHandlers() {
   /** Supprime une plante par son identifiant. */
   ipcMain.handle('plantes:delete', async (_event, { id }: { id: number }) => {
     await db.plante.delete({ where: { id } });
-  });
-
-  /**
-   * Interroge l'API REST Wikipedia (version française) pour obtenir
-   * le résumé d'une plante à partir de son nom.
-   * Retourne null si la page est introuvable ou en cas d'erreur réseau.
-   */
-  ipcMain.handle('plantes:scrapeWikipedia', async (_event, { nom }: { nom: string }): Promise<WikipediaResult | null> => {
-    try {
-      const url = `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(nom)}`;
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const data = await res.json() as { title: string; description?: string; extract: string };
-      return {
-        titre: data.title,
-        description: data.description ?? null,
-        extrait: data.extract,
-      };
-    } catch {
-      return null;
-    }
   });
 }

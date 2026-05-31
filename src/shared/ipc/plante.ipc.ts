@@ -52,20 +52,12 @@ export interface UpdatePlanteDto {
   typePlanteId?: number;
 }
 
-/** Résultat brut retourné par le handler `plantes:scrapeWikipedia`. */
-export interface WikipediaResult {
-  titre: string;
-  description: string | null;
-  extrait: string;
-}
-
 /** Carte des canaux IPC du domaine Plante (types request/response par canal). */
 export interface PlanteChannels {
-  'plantes:getAll':          { request: void;             response: Plante[]              };
-  'plantes:getById':         { request: { id: number };   response: Plante | null         };
-  'plantes:create':          { request: CreatePlanteDto;  response: Plante                };
-  'plantes:update':          { request: UpdatePlanteDto;  response: Plante                };
-  'plantes:delete':          { request: { id: number };   response: void                  };
-  'plantes:scrapeWikipedia': { request: { nom: string };  response: WikipediaResult | null };
-  'typePlantes:getAll':      { request: void;             response: TypePlante[]          };
+  'plantes:getAll':     { request: void;             response: Plante[]     };
+  'plantes:getById':    { request: { id: number };   response: Plante | null };
+  'plantes:create':     { request: CreatePlanteDto;  response: Plante       };
+  'plantes:update':     { request: UpdatePlanteDto;  response: Plante       };
+  'plantes:delete':     { request: { id: number };   response: void         };
+  'typePlantes:getAll': { request: void;             response: TypePlante[] };
 }
