@@ -29,9 +29,17 @@ npx prisma generate
 # 4. Créer la base de données et appliquer les migrations
 npx prisma migrate deploy
 
-# 5. Peupler la base avec les données de référence
+# 5. Recompiler les modules natifs pour le Node de votre système
+npm rebuild better-sqlite3
+
+# 6. Peupler la base avec les données de test
 npx prisma db seed
 ```
+
+> Après le seed, recompilez `better-sqlite3` pour Electron avant de démarrer l'app :
+> ```bash
+> npx @electron/rebuild -f -w better-sqlite3
+> ```
 
 ## Lancement
 
@@ -108,4 +116,4 @@ Relations clés : `Parcelle` → `Culture` → `Recolte` (1:N), `Culture` ↔ `T
 - **Journal** — journal de bord chronologique par culture
 - **Paramètres** — gestion des référentiels (types de plante, types de sol, statuts, catégories de stock)
 
-Bien entendu, Claude Sonnet 4.6 a été utilisé pour développer cette application afin de limiter le travail répétitif, corriger certains bugs, problème de gestion/structure et faire les annotations dans le code directement. 
+Bien entendu, Claude Sonnet 4.6 a été utilisé pour l'aide ou developpement de cette application afin de limiter le travail répétitif, corriger certains bugs, problème de gestion/structure et faire les annotations dans le code directement. 
