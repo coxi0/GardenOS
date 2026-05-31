@@ -94,3 +94,9 @@
   font-size: 0.85rem;
   padding: 0.25rem 0;
 }
+
+.ref-erreur {
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+}

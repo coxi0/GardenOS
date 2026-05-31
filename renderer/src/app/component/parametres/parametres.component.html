@@ -28,6 +28,9 @@
             <li class="ref-empty">Aucune valeur.</li>
           }
         </ul>
+        @if (s.erreur) {
+          <p class="ref-erreur">{{ s.erreur }}</p>
+        }
       </div>
     }
   </div>

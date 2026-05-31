@@ -7,9 +7,10 @@ import { RefsService, RefItem } from '../../services/refs.service';
  * Encapsule le libellé, les items chargés et les opérations CRUD associées.
  */
 interface Section {
-  label: string;
-  items: RefItem[];
+  label:  string;
+  items:  RefItem[];
   libelle: string;
+  erreur: string | null;
   getAll:  () => Promise<RefItem[]>;
   create:  (l: string) => Promise<RefItem>;
   delete:  (id: number) => Promise<void>;
@@ -37,10 +38,10 @@ export class ParametresComponent implements OnInit {
   /** Initialise les sections et déclenche le chargement initial de toutes les listes. */
   ngOnInit() {
     this.sections = [
-      { label: 'Types de plante',     items: [], libelle: '', getAll: () => this.refs.getTypesPlante(),       create: l => this.refs.createTypePlante(l),       delete: id => this.refs.deleteTypePlante(id)       },
-      { label: 'Types de sol',        items: [], libelle: '', getAll: () => this.refs.getTypesSol(),        create: l => this.refs.createTypeSol(l),        delete: id => this.refs.deleteTypeSol(id)        },
-      { label: 'Statuts de culture',  items: [], libelle: '', getAll: () => this.refs.getStatutsCulture(),  create: l => this.refs.createStatutCulture(l),  delete: id => this.refs.deleteStatutCulture(id)  },
-      { label: 'Catégories de stock', items: [], libelle: '', getAll: () => this.refs.getCategoriesStock(), create: l => this.refs.createCategorieStock(l), delete: id => this.refs.deleteCategorieStock(id) },
+      { label: 'Types de plante',     items: [], libelle: '', erreur: null, getAll: () => this.refs.getTypesPlante(),       create: l => this.refs.createTypePlante(l),       delete: id => this.refs.deleteTypePlante(id)       },
+      { label: 'Types de sol',        items: [], libelle: '', erreur: null, getAll: () => this.refs.getTypesSol(),        create: l => this.refs.createTypeSol(l),        delete: id => this.refs.deleteTypeSol(id)        },
+      { label: 'Statuts de culture',  items: [], libelle: '', erreur: null, getAll: () => this.refs.getStatutsCulture(),  create: l => this.refs.createStatutCulture(l),  delete: id => this.refs.deleteStatutCulture(id)  },
+      { label: 'Catégories de stock', items: [], libelle: '', erreur: null, getAll: () => this.refs.getCategoriesStock(), create: l => this.refs.createCategorieStock(l), delete: id => this.refs.deleteCategorieStock(id) },
     ];
     this.chargerTout();
   }
@@ -69,14 +70,20 @@ export class ParametresComponent implements OnInit {
     }
   }
 
-  /** Supprime l'item identifié dans la section donnée puis recharge sa liste. */
+  /** Supprime l'item identifié dans la section donnée puis recharge sa liste.
+   *  Affiche un message si l'item est encore référencé par d'autres enregistrements. */
   async supprimer(s: Section, id: number) {
+    s.erreur = null;
     try {
       await s.delete(id);
       s.items = await s.getAll();
       this.cdr.detectChanges();
-    } catch (err) {
-      console.error('[parametres:supprimer]', err);
+    } catch (err: any) {
+      const isFk = err?.message?.includes('Foreign key') || err?.message?.includes('foreign key');
+      s.erreur = isFk
+        ? `Impossible de supprimer : cette valeur est encore utilisée.`
+        : `Erreur lors de la suppression.`;
+      this.cdr.detectChanges();
     }
   }
 }
