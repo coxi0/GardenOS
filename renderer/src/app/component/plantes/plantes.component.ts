@@ -146,7 +146,7 @@ export class PlantesComponent implements OnInit {
           maladies: val.maladies ?? undefined, ensoleillement: val.ensoleillement ?? undefined,
           moisSemisDebut: val.moisSemisDebut ?? undefined, moisSemisFin: val.moisSemisFin ?? undefined,
           joursArrosage: val.joursArrosage ?? undefined, joursMaturation: val.joursMaturation ?? undefined,
-          typePlanteId: val.typePlanteId!,
+          typePlanteId: Number(val.typePlanteId!),
         });
         this.plantes.update(liste => liste.map(p => p.id === updated.id ? updated : p));
       } else {
@@ -157,7 +157,7 @@ export class PlantesComponent implements OnInit {
           ensoleillement: val.ensoleillement ?? undefined,
           moisSemisDebut: val.moisSemisDebut ?? 1, moisSemisFin: val.moisSemisFin ?? 12,
           joursArrosage: val.joursArrosage ?? 3, joursMaturation: val.joursMaturation ?? 60,
-          typePlanteId: val.typePlanteId!,
+          typePlanteId: Number(val.typePlanteId!),
         });
         this.plantes.update(liste => [...liste, created]);
       }
