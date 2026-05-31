@@ -34,22 +34,34 @@ export class ParametresComponent implements OnInit {
   }
 
   async chargerTout() {
-    await Promise.all(this.sections.map(async s => s.items = await s.getAll()));
-    this.cdr.detectChanges();
+    try {
+      await Promise.all(this.sections.map(async s => s.items = await s.getAll()));
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('[parametres:chargerTout]', err);
+    }
   }
 
   async ajouter(s: Section) {
     const val = s.libelle.trim();
     if (!val) return;
-    await s.create(val);
-    s.libelle = '';
-    s.items = await s.getAll();
-    this.cdr.detectChanges();
+    try {
+      await s.create(val);
+      s.libelle = '';
+      s.items = await s.getAll();
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('[parametres:ajouter]', err);
+    }
   }
 
   async supprimer(s: Section, id: number) {
-    await s.delete(id);
-    s.items = await s.getAll();
-    this.cdr.detectChanges();
+    try {
+      await s.delete(id);
+      s.items = await s.getAll();
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('[parametres:supprimer]', err);
+    }
   }
 }

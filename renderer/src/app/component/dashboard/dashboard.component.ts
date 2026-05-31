@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { JardinService, ParcelleFull, CultureFull } from '../../services/jardin.service';
 import { StockService, StockItem } from '../../services/stock.service';
 import { PlanteService } from '../../services/plante.service';
@@ -19,15 +19,26 @@ export class DashboardComponent implements OnInit {
   stocks       = signal<StockItem[]>([]);
   totalPlantes = signal<number>(0);
 
+  constructor() {
+    effect(() => {
+      const nb = this.alertes().length;
+      if (nb > 0) console.warn(`[dashboard] ${nb} article(s) en stock sous le seuil d'alerte.`);
+    });
+  }
+
   async ngOnInit() {
-    const [parcelles, stocks, totalPlantes] = await Promise.all([
-      this.jardinService.getParcelles(),
-      this.stockService.getAll(),
-      this.planteService.count(),
-    ]);
-    this.parcelles.set(parcelles);
-    this.stocks.set(stocks);
-    this.totalPlantes.set(totalPlantes);
+    try {
+      const [parcelles, stocks, totalPlantes] = await Promise.all([
+        this.jardinService.getParcelles(),
+        this.stockService.getAll(),
+        this.planteService.count(),
+      ]);
+      this.parcelles.set(parcelles);
+      this.stocks.set(stocks);
+      this.totalPlantes.set(totalPlantes);
+    } catch (err) {
+      console.error('[dashboard:ngOnInit]', err);
+    }
   }
 
   cultures = computed(() =>

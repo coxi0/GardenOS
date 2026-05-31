@@ -53,12 +53,16 @@ export class PlantesComponent implements OnInit {
   });
 
   async ngOnInit() {
-    const [plantes, types] = await Promise.all([
-      this.planteService.getAll(),
-      this.planteService.getTypePlantes(),
-    ]);
-    this.plantes.set(plantes);
-    this.typePlantes.set(types);
+    try {
+      const [plantes, types] = await Promise.all([
+        this.planteService.getAll(),
+        this.planteService.getTypePlantes(),
+      ]);
+      this.plantes.set(plantes);
+      this.typePlantes.set(types);
+    } catch (err) {
+      console.error('[plantes:ngOnInit]', err);
+    }
   }
 
   async rechercherWikipedia() {
@@ -118,36 +122,43 @@ export class PlantesComponent implements OnInit {
   async sauvegarder() {
     if (this.form.invalid) return;
     const val = this.form.value as Required<typeof this.form.value>;
-
-    if (this.modeEdition()) {
-      const updated = await this.planteService.update({
-        id: this.editId()!,
-        nom: val.nom ?? undefined, nomLatin: val.nomLatin ?? undefined,
-        description: val.description ?? undefined, conseil: val.conseil ?? undefined,
-        maladies: val.maladies ?? undefined, ensoleillement: val.ensoleillement ?? undefined,
-        moisSemisDebut: val.moisSemisDebut ?? undefined, moisSemisFin: val.moisSemisFin ?? undefined,
-        joursArrosage: val.joursArrosage ?? undefined, joursMaturation: val.joursMaturation ?? undefined,
-        typePlanteId: val.typePlanteId!,
-      });
-      this.plantes.update(liste => liste.map(p => p.id === updated.id ? updated : p));
-    } else {
-      const created = await this.planteService.create({
-        nom: val.nom!,
-        nomLatin: val.nomLatin ?? undefined, description: val.description ?? undefined,
-        conseil: val.conseil ?? undefined, maladies: val.maladies ?? undefined,
-        ensoleillement: val.ensoleillement ?? undefined,
-        moisSemisDebut: val.moisSemisDebut ?? 1, moisSemisFin: val.moisSemisFin ?? 12,
-        joursArrosage: val.joursArrosage ?? 3, joursMaturation: val.joursMaturation ?? 60,
-        typePlanteId: val.typePlanteId!,
-      });
-      this.plantes.update(liste => [...liste, created]);
+    try {
+      if (this.modeEdition()) {
+        const updated = await this.planteService.update({
+          id: this.editId()!,
+          nom: val.nom ?? undefined, nomLatin: val.nomLatin ?? undefined,
+          description: val.description ?? undefined, conseil: val.conseil ?? undefined,
+          maladies: val.maladies ?? undefined, ensoleillement: val.ensoleillement ?? undefined,
+          moisSemisDebut: val.moisSemisDebut ?? undefined, moisSemisFin: val.moisSemisFin ?? undefined,
+          joursArrosage: val.joursArrosage ?? undefined, joursMaturation: val.joursMaturation ?? undefined,
+          typePlanteId: val.typePlanteId!,
+        });
+        this.plantes.update(liste => liste.map(p => p.id === updated.id ? updated : p));
+      } else {
+        const created = await this.planteService.create({
+          nom: val.nom!,
+          nomLatin: val.nomLatin ?? undefined, description: val.description ?? undefined,
+          conseil: val.conseil ?? undefined, maladies: val.maladies ?? undefined,
+          ensoleillement: val.ensoleillement ?? undefined,
+          moisSemisDebut: val.moisSemisDebut ?? 1, moisSemisFin: val.moisSemisFin ?? 12,
+          joursArrosage: val.joursArrosage ?? 3, joursMaturation: val.joursMaturation ?? 60,
+          typePlanteId: val.typePlanteId!,
+        });
+        this.plantes.update(liste => [...liste, created]);
+      }
+      this.fermerModal();
+    } catch (err) {
+      console.error('[plantes:sauvegarder]', err);
     }
-    this.fermerModal();
   }
 
   async supprimer(id: number) {
-    await this.planteService.delete(id);
-    this.plantes.update(liste => liste.filter(p => p.id !== id));
+    try {
+      await this.planteService.delete(id);
+      this.plantes.update(liste => liste.filter(p => p.id !== id));
+    } catch (err) {
+      console.error('[plantes:supprimer]', err);
+    }
   }
 
   private resetWiki() {
