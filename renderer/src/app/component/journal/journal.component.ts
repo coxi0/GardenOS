@@ -3,11 +3,17 @@ import { FormsModule } from '@angular/forms';
 import { JournalService, JournalEntry } from '../../services/journal.service';
 import { JardinService, ParcelleFull } from '../../services/jardin.service';
 
+/** Option de sélection d'une culture dans le filtre du journal (id + label lisible). */
 interface CultureOption {
   id: number;
   label: string;
 }
 
+/**
+ * Composant du journal de bord.
+ * Affiche toutes les entrées, filtrables par culture et par mot-clé.
+ * L'effect() remet automatiquement la recherche textuelle à zéro à chaque changement de culture sélectionnée.
+ */
 @Component({
   standalone: true,
   selector: 'app-journal',
@@ -23,6 +29,7 @@ export class JournalComponent implements OnInit {
   entrees   = signal<JournalEntry[]>([]);
   parcelles = signal<ParcelleFull[]>([]);
 
+  /** Charge en parallèle les entrées du journal et les parcelles au démarrage. */
   async ngOnInit() {
     try {
       const [entrees, parcelles] = await Promise.all([
@@ -36,6 +43,7 @@ export class JournalComponent implements OnInit {
     }
   }
 
+  /** Liste aplatie des cultures disponibles pour le filtre, au format "Plante — Parcelle". */
   cultures = computed<CultureOption[]>(() =>
     this.parcelles().flatMap(p =>
       p.cultures.map(c => ({
@@ -49,12 +57,14 @@ export class JournalComponent implements OnInit {
   filtreCultureId = signal<number | null>(null);
 
   constructor() {
+    /** Remet la recherche textuelle à zéro dès qu'on change de filtre culture. */
     effect(() => {
       this.filtreCultureId();
       this.recherche.set('');
     });
   }
 
+  /** Entrées filtrées par terme de recherche et/ou culture sélectionnée. */
   entreesFiltrees = computed(() => {
     const terme     = this.recherche().toLowerCase();
     const cultureId = this.filtreCultureId();
@@ -73,6 +83,7 @@ export class JournalComponent implements OnInit {
   formCultureId = signal<number | null>(null);
   formDate      = signal<string>(new Date().toISOString().slice(0, 10));
 
+  /** Initialise le formulaire pour une nouvelle entrée et ouvre la modale. */
   ouvrirAjout() {
     this.editId.set(null);
     this.formContenu.set('');
@@ -82,6 +93,7 @@ export class JournalComponent implements OnInit {
     this.modalOuvert.set(true);
   }
 
+  /** Pré-remplit le formulaire avec l'entrée à éditer et ouvre la modale. */
   ouvrirEdition(entree: JournalEntry) {
     this.editId.set(entree.id);
     this.formContenu.set(entree.contenu);
@@ -91,10 +103,12 @@ export class JournalComponent implements OnInit {
     this.modalOuvert.set(true);
   }
 
+  /** Ferme la modale de saisie. */
   fermerModal() {
     this.modalOuvert.set(false);
   }
 
+  /** Crée ou met à jour une entrée de journal selon le mode du formulaire. */
   async sauvegarder() {
     const contenu   = this.formContenu().trim();
     const cultureId = this.formCultureId();
@@ -121,6 +135,7 @@ export class JournalComponent implements OnInit {
     }
   }
 
+  /** Supprime une entrée de journal par son identifiant. */
   async supprimer(id: number) {
     try {
       await this.journalService.delete(id);
@@ -130,6 +145,7 @@ export class JournalComponent implements OnInit {
     }
   }
 
+  /** Formate une date ISO en date française longue (ex : "15 mars 2026"). */
   formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('fr-FR', {
       day: '2-digit', month: 'long', year: 'numeric',

@@ -3,12 +3,18 @@ import { JardinService, ParcelleFull, CultureFull, Recolte, StatutCulture, TypeS
 import { PlanteService } from '../../services/plante.service';
 import type { Plante } from '../../services/plante.service';
 
+/** Cellule de la grille du jardin (coordonnées x/y + parcelle éventuelle à cet emplacement). */
 interface GridCell {
   x: number;
   y: number;
   parcelle: ParcelleFull | null;
 }
 
+/**
+ * Composant principal de la vue Jardin.
+ * Affiche une grille 4×4 de parcelles avec drag & drop pour les repositionner.
+ * Gère les modales de création/édition des parcelles, cultures et récoltes.
+ */
 @Component({
   standalone: true,
   selector: 'app-jardin',
@@ -26,6 +32,7 @@ export class JardinComponent implements OnInit {
   plantes   = signal<Plante[]>([]);
   tags      = signal<Tag[]>([]);
 
+  /** Charge en parallèle toutes les données nécessaires à l'affichage du jardin. */
   async ngOnInit() {
     try {
       const [parcelles, statuts, typesSol, plantes, tags] = await Promise.all([
@@ -48,6 +55,7 @@ export class JardinComponent implements OnInit {
   readonly COLS = 4;
   readonly ROWS = 4;
 
+  /** Grille calculée : toutes les cellules (x, y) avec la parcelle qui les occupe, ou null. */
   grille = computed<GridCell[]>(() => {
     const cells: GridCell[] = [];
     for (let y = 0; y < this.ROWS; y++) {
@@ -59,16 +67,20 @@ export class JardinComponent implements OnInit {
     return cells;
   });
 
+  /** Identifiant de la parcelle en cours de déplacement (drag & drop). */
   draggedId = signal<number | null>(null);
 
+  /** Mémorise la parcelle glissée au début du drag. */
   onDragStart(parcelle: ParcelleFull) {
     this.draggedId.set(parcelle.id);
   }
 
+  /** Autorise le drop sur la cellule cible. */
   onDragOver(event: DragEvent) {
     event.preventDefault();
   }
 
+  /** Dépose la parcelle glissée sur la cellule cible et persiste la nouvelle position. */
   async onDrop(event: DragEvent, cell: GridCell) {
     event.preventDefault();
     const id = this.draggedId();
@@ -83,15 +95,19 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  /** Réinitialise l'état de drag si le drop est annulé. */
   onDragEnd() {
     this.draggedId.set(null);
   }
+
+  // ── Modale Parcelle ─────────────────────────────────────────────────────────
 
   modalParcelleOuvert = signal(false);
   modeEditionParcelle = signal(false);
   formParcelle        = signal<Partial<ParcelleFull>>({});
   celleCible          = signal<{ x: number; y: number } | null>(null);
 
+  /** Ouvre la modale pour créer une nouvelle parcelle à la position de la cellule cliquée. */
   ouvrirAjoutParcelle(cell: GridCell) {
     this.formParcelle.set({ posX: cell.x, posY: cell.y });
     this.celleCible.set({ x: cell.x, y: cell.y });
@@ -99,6 +115,7 @@ export class JardinComponent implements OnInit {
     this.modalParcelleOuvert.set(true);
   }
 
+  /** Ouvre la modale pour éditer une parcelle existante. */
   ouvrirEditionParcelle(p: ParcelleFull, event: MouseEvent) {
     event.stopPropagation();
     this.formParcelle.set({ ...p });
@@ -106,10 +123,12 @@ export class JardinComponent implements OnInit {
     this.modalParcelleOuvert.set(true);
   }
 
+  /** Ferme la modale parcelle. */
   fermerModalParcelle() {
     this.modalParcelleOuvert.set(false);
   }
 
+  /** Crée ou met à jour une parcelle selon le mode du formulaire. */
   async sauvegarderParcelle() {
     const form = this.formParcelle();
     if (!form.nom) return;
@@ -137,6 +156,7 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  /** Supprime une parcelle et met à jour la grille localement. */
   async supprimerParcelle(id: number, event: MouseEvent) {
     event.stopPropagation();
     try {
@@ -147,15 +167,22 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  // ── Panneau de détail ────────────────────────────────────────────────────────
+
+  /** Parcelle dont le détail est affiché dans le panneau latéral, ou null. */
   parcelleDetail = signal<ParcelleFull | null>(null);
 
+  /** Affiche le panneau de détail pour la parcelle donnée. */
   ouvrirDetail(parcelle: ParcelleFull) {
     this.parcelleDetail.set(parcelle);
   }
 
+  /** Ferme le panneau de détail. */
   fermerDetail() {
     this.parcelleDetail.set(null);
   }
+
+  // ── Modale Culture ───────────────────────────────────────────────────────────
 
   modalCultureOuvert   = signal(false);
   modeEditionCulture   = signal(false);
@@ -163,6 +190,7 @@ export class JardinComponent implements OnInit {
   parcelleSelectionnee = signal<number | null>(null);
   tagSaisie            = signal('');
 
+  /** Ouvre la modale pour créer une culture dans la parcelle donnée. */
   ouvrirAjoutCulture(parcelleId: number) {
     this.formCulture.set({
       dateSemisPrevue:   new Date().toISOString().slice(0, 10),
@@ -176,6 +204,7 @@ export class JardinComponent implements OnInit {
     this.modalCultureOuvert.set(true);
   }
 
+  /** Ouvre la modale pour éditer une culture existante. */
   ouvrirEditionCulture(culture: CultureFull) {
     this.formCulture.set({ ...culture, tagsLibelles: culture.tags.map(t => t.libelle) });
     this.parcelleSelectionnee.set(culture.parcelleId);
@@ -183,11 +212,13 @@ export class JardinComponent implements OnInit {
     this.modalCultureOuvert.set(true);
   }
 
+  /** Ferme la modale culture et remet le champ de saisie de tag à vide. */
   fermerModalCulture() {
     this.modalCultureOuvert.set(false);
     this.tagSaisie.set('');
   }
 
+  /** Ajoute le tag saisi à la liste des tags du formulaire de culture. */
   ajouterTag() {
     const libelle = this.tagSaisie().trim();
     if (!libelle) return;
@@ -197,12 +228,14 @@ export class JardinComponent implements OnInit {
     this.tagSaisie.set('');
   }
 
+  /** Retire un tag de la liste des tags du formulaire de culture. */
   retirerTag(libelle: string) {
     this.formCulture.update(f => ({
       ...f, tagsLibelles: (f.tagsLibelles ?? []).filter(t => t !== libelle),
     }));
   }
 
+  /** Crée ou met à jour une culture et synchronise les signaux parcelles et parcelleDetail. */
   async sauvegarderCulture() {
     const form       = this.formCulture();
     const parcelleId = this.parcelleSelectionnee();
@@ -242,6 +275,7 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  /** Supprime une culture et la retire de tous les signaux locaux. */
   async supprimerCulture(culture: CultureFull) {
     try {
       await this.jardinService.deleteCulture(culture.id);
@@ -256,6 +290,7 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  /** Change le statut d'une culture sans ouvrir la modale. */
   async changerStatut(culture: CultureFull, statutId: number) {
     try {
       const updated = await this.jardinService.updateCulture({ id: culture.id, statutId });
@@ -270,20 +305,25 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  // ── Modale Récolte ───────────────────────────────────────────────────────────
+
   modalRecolteOuvert  = signal(false);
   cultureSelectionnee = signal<CultureFull | null>(null);
   formRecolte         = signal({ quantite: 0, unite: 'kg', notes: '' });
 
+  /** Ouvre la modale de saisie d'une récolte pour la culture donnée. */
   ouvrirRecolte(culture: CultureFull) {
     this.cultureSelectionnee.set(culture);
     this.formRecolte.set({ quantite: 0, unite: 'kg', notes: '' });
     this.modalRecolteOuvert.set(true);
   }
 
+  /** Ferme la modale de récolte. */
   fermerModalRecolte() {
     this.modalRecolteOuvert.set(false);
   }
 
+  /** Enregistre la récolte et met à jour les signaux locaux. */
   async sauvegarderRecolte() {
     const culture = this.cultureSelectionnee();
     const form    = this.formRecolte();
@@ -306,6 +346,7 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  /** Supprime une récolte et met à jour les signaux locaux. */
   async supprimerRecolte(culture: CultureFull, recolteId: number) {
     try {
       await this.jardinService.deleteRecolte(recolteId);
@@ -323,6 +364,9 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  // ── Utilitaires ──────────────────────────────────────────────────────────────
+
+  /** Retourne la classe CSS correspondant au statut d'une culture. */
   couleurStatut(libelle: string): string {
     switch (libelle) {
       case 'Planifiée':  return 'statut-planifiee';
@@ -333,12 +377,14 @@ export class JardinComponent implements OnInit {
     }
   }
 
+  /** Retourne le total des récoltes d'une culture sous forme de chaîne lisible. */
   totalRecoltes(culture: CultureFull): string {
     if (!culture.recoltes.length) return '';
     const total = culture.recoltes.reduce((s, r) => s + r.quantite, 0);
     return `${total} ${culture.recoltes[0].unite}`;
   }
 
+  /** Formate une date ISO en date française courte, ou retourne "—" si null. */
   formatDate(iso: string | null): string {
     if (!iso) return '—';
     return new Date(iso).toLocaleDateString('fr-FR');

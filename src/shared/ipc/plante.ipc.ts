@@ -1,3 +1,4 @@
+/** Plante du catalogue telle que retournée par les handlers IPC. */
 export interface Plante {
   id: number;
   nom: string;
@@ -14,11 +15,13 @@ export interface Plante {
   typePlante?: { id: number; libelle: string };
 }
 
+/** Type de plante (ex. Légume, Fruit, Aromatique). */
 export interface TypePlante {
   id: number;
   libelle: string;
 }
 
+/** DTO de création d'une plante. */
 export interface CreatePlanteDto {
   nom: string;
   nomLatin?: string | null;
@@ -33,6 +36,7 @@ export interface CreatePlanteDto {
   typePlanteId: number;
 }
 
+/** DTO de mise à jour d'une plante (seul `id` est obligatoire). */
 export interface UpdatePlanteDto {
   id: number;
   nom?: string;
@@ -48,12 +52,14 @@ export interface UpdatePlanteDto {
   typePlanteId?: number;
 }
 
+/** Résultat brut retourné par le handler `plantes:scrapeWikipedia`. */
 export interface WikipediaResult {
   titre: string;
   description: string | null;
   extrait: string;
 }
 
+/** Carte des canaux IPC du domaine Plante (types request/response par canal). */
 export interface PlanteChannels {
   'plantes:getAll':          { request: void;             response: Plante[]              };
   'plantes:getById':         { request: { id: number };   response: Plante | null         };

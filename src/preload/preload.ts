@@ -1,3 +1,9 @@
+/**
+ * Script de préchargement Electron.
+ * Expose l'API IPC au processus renderer via contextBridge,
+ * en garantissant l'isolation de contexte (contextIsolation: true).
+ * Chaque méthode correspond à un canal ipcMain.handle enregistré côté main.
+ */
 import { contextBridge, ipcRenderer } from 'electron';
 import type { CreatePlanteDto, UpdatePlanteDto } from '../shared/ipc/plante.ipc';
 import type { CreateStockItemDto, UpdateStockItemDto } from '../shared/ipc/stock.ipc';

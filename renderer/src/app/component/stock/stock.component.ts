@@ -3,6 +3,11 @@ import { StockItem, CategorieStock, StockService } from '../../services/stock.se
 import { PlanteService } from '../../services/plante.service';
 import type { Plante } from '../../services/plante.service';
 
+/**
+ * Composant de gestion du stock (graines, outils, engrais, engrais…).
+ * Affiche la liste filtrée par nom et catégorie, gère les opérations CRUD
+ * et avertit en console via effect() lorsqu'un article est épuisé (quantité = 0).
+ */
 @Component({
   standalone: true,
   selector: 'app-stock',
@@ -18,6 +23,7 @@ export class StockComponent implements OnInit {
   categories = signal<CategorieStock[]>([]);
   plantes    = signal<Plante[]>([]);
 
+  /** Charge en parallèle les stocks, catégories et plantes au démarrage du composant. */
   async ngOnInit() {
     try {
       const [stocks, categories, plantes] = await Promise.all([
@@ -37,6 +43,7 @@ export class StockComponent implements OnInit {
   filtreCategorie = signal<number | null>(null);
 
   constructor() {
+    /** Avertit en console lorsque des articles sont épuisés (réactif aux changements du signal stocks). */
     effect(() => {
       const epuises = this.stocks().filter(s => s.quantite === 0);
       if (epuises.length > 0)
@@ -44,6 +51,7 @@ export class StockComponent implements OnInit {
     });
   }
 
+  /** Liste filtrée par terme de recherche et catégorie sélectionnée. */
   stocksFiltres = computed(() => {
     const terme = this.recherche().toLowerCase();
     const cat   = this.filtreCategorie();
@@ -58,6 +66,7 @@ export class StockComponent implements OnInit {
   modeEdition  = signal(false);
   formStock    = signal<Partial<StockItem>>({});
 
+  /** Initialise le formulaire pour l'ajout d'un nouvel article et ouvre la modale. */
   ouvrirAjout() {
     this.formStock.set({
       quantite:    0,
@@ -69,17 +78,20 @@ export class StockComponent implements OnInit {
     this.modalOuvert.set(true);
   }
 
+  /** Pré-remplit le formulaire avec les données de l'article à éditer et ouvre la modale. */
   ouvrirEdition(item: StockItem) {
     this.formStock.set({ ...item });
     this.modeEdition.set(true);
     this.modalOuvert.set(true);
   }
 
+  /** Ferme la modale et réinitialise le formulaire. */
   fermerModal() {
     this.modalOuvert.set(false);
     this.formStock.set({});
   }
 
+  /** Crée ou met à jour l'article en stock selon le mode du formulaire. */
   async sauvegarder() {
     const form = this.formStock();
     if (!form.nom || !form.categorieId) return;
@@ -114,6 +126,7 @@ export class StockComponent implements OnInit {
     }
   }
 
+  /** Supprime un article du stock par son identifiant. */
   async supprimer(id: number) {
     try {
       await this.stockService.delete(id);
@@ -123,6 +136,7 @@ export class StockComponent implements OnInit {
     }
   }
 
+  /** Retourne true si la quantité de l'article est inférieure ou égale à son seuil d'alerte. */
   enAlerte(item: StockItem): boolean {
     return item.seuilAlerte !== null && item.quantite <= item.seuilAlerte;
   }

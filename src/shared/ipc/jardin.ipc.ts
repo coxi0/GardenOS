@@ -1,8 +1,10 @@
+/** Tag associé à une culture. */
 export interface Tag {
   id: number;
   libelle: string;
 }
 
+/** Récolte enregistrée pour une culture. */
 export interface Recolte {
   id: number;
   date: string;
@@ -12,16 +14,19 @@ export interface Recolte {
   cultureId: number;
 }
 
+/** Statut d'une culture (ex. Planifiée, En cours, Récoltée, Abandonnée). */
 export interface StatutCulture {
   id: number;
   libelle: string;
 }
 
+/** Type de sol d'une parcelle (ex. Argileux, Sableux). */
 export interface TypeSol {
   id: number;
   libelle: string;
 }
 
+/** Culture complète telle que retournée par les handlers IPC (relations incluses). */
 export interface CultureFull {
   id: number;
   dateSemisPrevue: string;
@@ -38,6 +43,7 @@ export interface CultureFull {
   recoltes: Recolte[];
 }
 
+/** Parcelle complète telle que retournée par les handlers IPC (cultures incluses). */
 export interface ParcelleFull {
   id: number;
   nom: string;
@@ -50,6 +56,7 @@ export interface ParcelleFull {
   cultures: CultureFull[];
 }
 
+/** DTO de création d'une parcelle. */
 export interface CreateParcelleDto {
   nom: string;
   superficie?: number | null;
@@ -60,6 +67,7 @@ export interface CreateParcelleDto {
   posY?: number;
 }
 
+/** DTO de mise à jour d'une parcelle (seul `id` est obligatoire). */
 export interface UpdateParcelleDto {
   id: number;
   nom?: string;
@@ -71,6 +79,7 @@ export interface UpdateParcelleDto {
   posY?: number;
 }
 
+/** DTO de création d'une culture. Les dates sont transmises en chaînes ISO 8601. */
 export interface CreateCultureDto {
   dateSemisPrevue: string;
   dateRecoltePrevue: string;
@@ -83,6 +92,7 @@ export interface CreateCultureDto {
   tags?: string[];
 }
 
+/** DTO de mise à jour d'une culture (seul `id` est obligatoire). */
 export interface UpdateCultureDto {
   id: number;
   dateSemisPrevue?: string;
@@ -96,6 +106,7 @@ export interface UpdateCultureDto {
   tags?: string[];
 }
 
+/** DTO de création d'une récolte. */
 export interface CreateRecolteDto {
   cultureId: number;
   quantite: number;
@@ -103,6 +114,7 @@ export interface CreateRecolteDto {
   notes?: string | null;
 }
 
+/** Carte des canaux IPC du domaine Jardin (types request/response par canal). */
 export interface JardinChannels {
   'parcelles:getAll':       { request: void;               response: ParcelleFull[]  };
   'parcelles:create':       { request: CreateParcelleDto;  response: ParcelleFull    };

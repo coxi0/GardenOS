@@ -4,6 +4,11 @@ import { WikipediaService, WikiResultat } from '../../services/wikipedia.service
 import { Plante, PlanteService, TypePlante } from '../../services/plante.service';
 import { PlanteCardComponent } from './plante-card/plante-card.component';
 
+/**
+ * Composant de gestion du catalogue de plantes.
+ * Propose la recherche/filtrage, le formulaire réactif de création/édition
+ * et l'import automatique de données depuis Wikipedia.
+ */
 @Component({
   standalone: true,
   selector: 'app-plantes',
@@ -17,6 +22,7 @@ export class PlantesComponent implements OnInit {
   private wikipedia     = inject(WikipediaService);
   private fb            = inject(FormBuilder);
 
+  /** Formulaire réactif de création/édition d'une plante avec validations. */
   form = this.fb.group({
     nom:             ['',   Validators.required],
     nomLatin:        [null as string | null],
@@ -43,6 +49,8 @@ export class PlantesComponent implements OnInit {
   private editId = signal<number | null>(null);
 
   recherche = signal('');
+
+  /** Liste des plantes filtrée par terme de recherche (nom, nom latin ou type). */
   plantesFiltrees = computed(() => {
     const terme = this.recherche().toLowerCase();
     if (!terme) return this.plantes();
@@ -53,6 +61,7 @@ export class PlantesComponent implements OnInit {
     );
   });
 
+  /** Charge en parallèle le catalogue de plantes et les types de plante au démarrage. */
   async ngOnInit() {
     try {
       const [plantes, types] = await Promise.all([
@@ -66,6 +75,7 @@ export class PlantesComponent implements OnInit {
     }
   }
 
+  /** Interroge l'API Wikipedia et pré-remplit le formulaire avec le résultat. */
   async rechercherWikipedia() {
     const terme = this.wikiRecherche();
     if (!terme) return;
@@ -88,6 +98,7 @@ export class PlantesComponent implements OnInit {
     }
   }
 
+  /** Réinitialise le formulaire pour l'ajout d'une nouvelle plante et ouvre la modale. */
   ouvrirAjout() {
     this.resetWiki();
     this.form.reset({
@@ -100,6 +111,7 @@ export class PlantesComponent implements OnInit {
     this.modalOuvert.set(true);
   }
 
+  /** Pré-remplit le formulaire avec la plante à éditer et ouvre la modale. */
   ouvrirEdition(plante: Plante) {
     this.resetWiki();
     this.form.patchValue({
@@ -115,11 +127,13 @@ export class PlantesComponent implements OnInit {
     this.modalOuvert.set(true);
   }
 
+  /** Ferme la modale et réinitialise le formulaire. */
   fermerModal() {
     this.modalOuvert.set(false);
     this.form.reset();
   }
 
+  /** Crée ou met à jour une plante selon le mode du formulaire. */
   async sauvegarder() {
     if (this.form.invalid) return;
     const val = this.form.value as Required<typeof this.form.value>;
@@ -153,6 +167,7 @@ export class PlantesComponent implements OnInit {
     }
   }
 
+  /** Supprime une plante du catalogue par son identifiant. */
   async supprimer(id: number) {
     try {
       await this.planteService.delete(id);
@@ -162,6 +177,7 @@ export class PlantesComponent implements OnInit {
     }
   }
 
+  /** Réinitialise les signaux liés à la recherche Wikipedia. */
   private resetWiki() {
     this.wikiRecherche.set('');
     this.wikiResultat.set(null);

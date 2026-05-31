@@ -6,6 +6,7 @@ import { JardinComponent } from './component/jardin/jardin.component';
 import { ParametresComponent } from './component/parametres/parametres.component';
 import { JournalComponent } from './component/journal/journal.component';
 
+/** Déclaration des routes de l'application. La route vide redirige vers le dashboard. */
 export const routes: Routes = [
     { path: '',           redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard',  component: DashboardComponent  },

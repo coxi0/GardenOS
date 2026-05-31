@@ -12,9 +12,12 @@ if (started) {
   app.quit();
 }
 
+/** URL du serveur Angular en mode développement. */
 const ANGULAR_DEV_URL = 'http://localhost:4200';
+/** Chemin vers l'index HTML Angular compilé en mode production. */
 const ANGULAR_DIST = path.join(__dirname, '../../renderer/dist/app/browser/index.html');
 
+/** Crée et configure la fenêtre principale de l'application. */
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1280,
