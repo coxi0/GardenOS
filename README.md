@@ -90,7 +90,7 @@ GardenOS/
 |--------|-------------|
 | `Plante` | Catalogue des plantes (nom, latin, type, calendrier) |
 | `TypePlante` | Référentiel des types (Légume, Aromatique, Fruit…) |
-| `Parcelle` | Zones du jardin avec position sur grille |
+| `Parcelle` | Zones du jardin avec position sur grille et exposition solaire (`enum Exposition`) |
 | `Culture` | Plantation d'une plante dans une parcelle |
 | `StatutCulture` | Référentiel des statuts (Planifiée, En cours, Récoltée…) |
 | `Tag` | Étiquettes libres attachées aux cultures |
@@ -116,4 +116,17 @@ Le diagramme complet de la base de données est disponible dans le fichier [`gar
 - **Journal** — journal de bord chronologique par culture
 - **Paramètres** — gestion des référentiels (types de plante, types de sol, statuts, catégories de stock)
 
-Bien entendu, Claude Sonnet 4.6 a été utilisé pour l'aide ou developpement de cette application afin de limiter le travail répétitif, corriger certains bugs, problème de gestion/structure et faire les annotations dans le code directement. 
+
+---
+
+## Remise en question et pistes d'amélioration
+
+Sur le plan de la modélisation, plusieurs choix auraient mérité plus de réflexion en amont. `StatutCulture` aurait dû être un `enum` Prisma dès le départ plutôt qu'une table de référence, puisque ses valeurs sont fixes et jamais modifiées par l'utilisateur, utiliser une table complète ajoute une jointure, un handler IPC et une section dans les Paramètres pour rien. De même, l'enum `Exposition` a été ajouté tardivement, ce qui a nécessité une migration et une correction du seed en cours de développement alors qu'une conception initiale plus rigoureuse l'aurait inclus dès le début. Il manque aussi une contrainte `@unique` sur le nom des parcelles, ce qui permet à deux parcelles d'avoir le même nom sans erreur.
+
+Côté architecture, le `wikipedia.service.ts` appelle les APIs Wikipedia et Wikidata directement depuis le renderer au lieu de passer par un handler IPC dans le main process. Ce n'est pas un problème fonctionnel mais c'est une incohérence par rapport à la philosophie Electron où le renderer est censé ne communiquer qu'avec le preload. Le `ParametresComponent` utilise également `ChangeDetectorRef` avec mutation d'objet ordinaire au lieu de signaux, contrairement à tous les autres composants, ce qui le rend moins cohérent avec le reste du code. Sur la qualité générale, il n'y a aucune gestion d'erreur visible pour l'utilisateur, les erreurs restent en console.
+
+Concernant la gestion du temps et l'utilisation de l'IA, le projet a été développé avec l'assistance de Claude code, ce qui a clairement eu un effet pervers sur la façon de travailler. Savoir que l'IA peut réécrire un fichier entier en quelques secondes encourage une certaine passivité dans la recherche et plus une suite de question réponse avec le prompt. C'est la meme chose pour la correction de bug ou la recherche est beaucoup plus rapide que de tester chaque ligne.  
+
+L'IA a été utile pour les tâches répétitives (annotations JSDoc, handlers IPC similaires, corrections de typage, vérification des consignes), mais elle a aussi conforté une tendance à ne pas planifier suffisamment en amont, en se disant qu'on pourra toujours corriger ça plus tard. Plusieurs choses ont ainsi été implémentées en réaction comme l'enum Exposition, le fix du `typePlanteId`, la correction du mapping Wikipedia plutôt que pensées dès la conception..... 
+
+Parmi les fonctionnalités qui auraient pu être développées avec plus de temps j'aurais voulu mettre en place un lien automatique entre les récoltes et le stock (incrémenter la quantité en stock à chaque récolte enregistrée), un historique des mouvements de stock avec un modèle `MouvementStock`, des notifications système natives via Electron pour les rappels de semis, un export CSV ou PDF des données, et une recherche globale transversale à toute l'application.
