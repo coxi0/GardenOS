@@ -136,6 +136,7 @@
 
 .erreur { color: #c0392b; font-size: 0.85rem; margin: 0.5rem 0 0; }
 .wiki-apercu { color: #2d6a4f; font-size: 0.85rem; margin: 0.5rem 0 0; }
+.wiki-info   { color: #888; font-size: 0.78rem; margin: 0.2rem 0 0; font-style: italic; }
 
 /* ── Formulaire ──────────────────────────────────────────────────────────── */
 .form-champs {
