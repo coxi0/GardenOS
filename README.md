@@ -107,6 +107,10 @@ GardenOS/
 
 Relations clés : `Parcelle` → `Culture` → `Recolte` (1:N), `Culture` ↔ `Tag` (N:M via `CultureTag`).
 
+### Schéma entité-relation
+
+Le diagramme complet de la base de données est disponible dans le fichier [`gardenOs_Bd.drawio`](gardenOs_Bd.drawio) (ouvrir avec [draw.io](https://app.diagrams.net/)). Une version PDF est également fournie : [`gardenOs_Bd.pdf`](gardenOs_Bd.pdf).
+
 ## Fonctionnalités
 
 - **Dashboard** — vue d'ensemble : cultures par statut, prochains semis et récoltes, alertes de stock
