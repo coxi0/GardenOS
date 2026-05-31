@@ -1,0 +1,87 @@
+<div class="page">
+
+  <div class="page-header">
+    <h1>Journal de bord</h1>
+    <button class="btn-primary" (click)="ouvrirAjout()">+ Nouvelle entrée</button>
+  </div>
+
+  <div class="filtres-bar">
+    <input
+      type="text"
+      placeholder="Rechercher dans le contenu..."
+      [ngModel]="recherche()"
+      (ngModelChange)="recherche.set($event)"
+    />
+    <select [ngModel]="filtreCultureId()" (ngModelChange)="filtreCultureId.set($event || null)">
+      <option [ngValue]="null">Toutes les cultures</option>
+      @for (c of cultures(); track c.id) {
+        <option [ngValue]="c.id">{{ c.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="entrees-liste">
+    @for (e of entreesFiltrees(); track e.id) {
+      <div class="entree-carte">
+        <div class="entree-header">
+          <span class="entree-date">{{ formatDate(e.date) }}</span>
+          <span class="badge-culture">{{ e.culture.plante.nom }} — {{ e.culture.parcelle.nom }}</span>
+          <div class="entree-actions">
+            <button (click)="ouvrirEdition(e)">Modifier</button>
+            <button class="btn-danger" (click)="supprimer(e.id)">Supprimer</button>
+          </div>
+        </div>
+        <p class="entree-contenu">{{ e.contenu }}</p>
+      </div>
+    }
+    @empty {
+      <p class="vide">Aucune entrée trouvée.</p>
+    }
+  </div>
+
+  @if (modalOuvert()) {
+    <div class="modal-overlay" (click)="fermerModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <h2>{{ modeEdition() ? 'Modifier l\'entrée' : 'Nouvelle entrée' }}</h2>
+          <button (click)="fermerModal()">✕</button>
+        </div>
+
+        <div class="form-champs">
+
+          <label>Culture *
+            <select [ngModel]="formCultureId()" (ngModelChange)="formCultureId.set($event)">
+              @for (c of cultures(); track c.id) {
+                <option [ngValue]="c.id">{{ c.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label>Date
+            <input type="date" [ngModel]="formDate()" (ngModelChange)="formDate.set($event)" />
+          </label>
+
+          <label>Contenu *
+            <textarea
+              rows="5"
+              placeholder="Décrivez vos observations..."
+              [ngModel]="formContenu()"
+              (ngModelChange)="formContenu.set($event)"
+            ></textarea>
+          </label>
+
+        </div>
+
+        <div class="modal-footer">
+          <button (click)="fermerModal()">Annuler</button>
+          <button class="btn-primary" (click)="sauvegarder()" [disabled]="!formContenu().trim() || !formCultureId()">
+            Sauvegarder
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

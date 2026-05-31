@@ -16,6 +16,4 @@ model Plante {
 
   cultures     Culture[]
   stockItems   StockItem[]
-  associationsA Association[] @relation("PlanteA")
-  associationsB Association[] @relation("PlanteB")
 }

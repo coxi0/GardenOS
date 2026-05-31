@@ -5,6 +5,7 @@ import { registerPlanteHandlers } from './ipc/plante.handlers';
 import { registerStockHandlers } from './ipc/stock.handlers';
 import { registerJardinHandlers } from './ipc/jardin.handlers';
 import { registerRefsHandlers } from './ipc/refs.handlers';
+import { registerJournalHandlers } from './ipc/journal.handlers';
 import { disconnectDb } from './services/db.service';
 
 if (started) {
@@ -38,6 +39,7 @@ app.on('ready', () => {
   registerStockHandlers();
   registerJardinHandlers();
   registerRefsHandlers();
+  registerJournalHandlers();
   createWindow();
 });
 

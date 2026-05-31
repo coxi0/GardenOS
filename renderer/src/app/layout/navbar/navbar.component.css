@@ -1,1 +1,51 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0 2rem;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+}
 
+.brand {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1b4332;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+}
+
+ul {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  display: block;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #555;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+
+a:hover {
+  background: #f4f4f4;
+  color: #1b4332;
+}
+
+a.active {
+  background: #d8f3dc;
+  color: #1b4332;
+  font-weight: 600;
+}

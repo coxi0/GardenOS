@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import type { CreatePlanteDto, UpdatePlanteDto } from '../shared/ipc/plante.ipc';
 import type { CreateStockItemDto, UpdateStockItemDto } from '../shared/ipc/stock.ipc';
 import type { CreateParcelleDto, UpdateParcelleDto, CreateCultureDto, UpdateCultureDto, CreateRecolteDto } from '../shared/ipc/jardin.ipc';
+import type { CreateJournalDto, UpdateJournalDto } from '../shared/ipc/journal.ipc';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   'plantes:getAll':          ()                        => ipcRenderer.invoke('plantes:getAll'),
@@ -34,14 +35,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   'typePlantes:delete':       (data: { id: number })      => ipcRenderer.invoke('typePlantes:delete', data),
   'typesSol:create':          (data: { libelle: string }) => ipcRenderer.invoke('typesSol:create', data),
   'typesSol:delete':          (data: { id: number })      => ipcRenderer.invoke('typesSol:delete', data),
-  'typesAssociation:getAll':  ()                          => ipcRenderer.invoke('typesAssociation:getAll'),
-  'typesAssociation:create':  (data: { libelle: string }) => ipcRenderer.invoke('typesAssociation:create', data),
-  'typesAssociation:delete':  (data: { id: number })      => ipcRenderer.invoke('typesAssociation:delete', data),
   'statutsCulture:create':    (data: { libelle: string }) => ipcRenderer.invoke('statutsCulture:create', data),
   'statutsCulture:delete':    (data: { id: number })      => ipcRenderer.invoke('statutsCulture:delete', data),
-  'typesAlerte:getAll':       ()                          => ipcRenderer.invoke('typesAlerte:getAll'),
-  'typesAlerte:create':       (data: { libelle: string }) => ipcRenderer.invoke('typesAlerte:create', data),
-  'typesAlerte:delete':       (data: { id: number })      => ipcRenderer.invoke('typesAlerte:delete', data),
   'categoriesStock:create':   (data: { libelle: string }) => ipcRenderer.invoke('categoriesStock:create', data),
   'categoriesStock:delete':   (data: { id: number })      => ipcRenderer.invoke('categoriesStock:delete', data),
+  'journal:getAll':           ()                              => ipcRenderer.invoke('journal:getAll'),
+  'journal:getByCulture':     (data: { cultureId: number })  => ipcRenderer.invoke('journal:getByCulture', data),
+  'journal:create':           (data: CreateJournalDto)        => ipcRenderer.invoke('journal:create', data),
+  'journal:update':           (data: UpdateJournalDto)        => ipcRenderer.invoke('journal:update', data),
+  'journal:delete':           (data: { id: number })          => ipcRenderer.invoke('journal:delete', data),
 });
