@@ -88,8 +88,8 @@ export class PlantesComponent implements OnInit {
       this.wikiResultat.set(resultat);
       this.form.patchValue({
         nom:         resultat.title,
-        nomLatin:    resultat.description ?? null,
-        description: resultat.extract     ?? null,
+        nomLatin:    resultat.nomLatin  ?? null,
+        description: resultat.extract   ?? null,
       });
     } catch {
       this.wikiErreur.set('Erreur de connexion à Wikipedia.');
