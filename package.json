@@ -9,10 +9,10 @@
   "scripts": {
     "dev": "concurrently -k -n \"ANGULAR,ELECTRON\" -c \"cyan,green\" \"npm run dev:angular\" \"npm run dev:electron\"",
     "dev:angular": "npm start --prefix renderer",
-    "dev:electron": "wait-on http://localhost:4200 && electron-forge start",
+    "dev:electron": "wait-on http://localhost:4200 && electron-forge start -- --dev",
     "build": "npm run build:angular && electron-forge package",
     "build:angular": "npm run build --prefix renderer",
-    "start": "concurrently -k -n \"ANGULAR,ELECTRON\" -c \"cyan,green\" \"npm run dev:angular\" \"npm run dev:electron\"",
+    "start": "npm run build:angular && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",

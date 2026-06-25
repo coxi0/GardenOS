@@ -29,7 +29,12 @@ const createWindow = () => {
     },
   });
 
-  if (!app.isPackaged) {
+  // Mode dev (npm run dev) : sert l'app depuis le serveur Angular avec hot-reload.
+  // Sinon (npm run start ou app packagée) : charge le build statique via loadFile,
+  // aucun serveur sur le port 4200 n'est nécessaire.
+  const isDev = !app.isPackaged && process.argv.includes('--dev');
+
+  if (isDev) {
     mainWindow.loadURL(ANGULAR_DEV_URL);
     mainWindow.webContents.openDevTools();
   } else {

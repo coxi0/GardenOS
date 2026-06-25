@@ -47,14 +47,23 @@ npx prisma db seed
 npm run start
 ```
 
-Lance simultanément le serveur Angular (hot-reload) et Electron.
+`npm run start` **compile Angular** (`ng build`) puis lance Electron sur le **build statique** via `loadFile`. Aucun serveur sur le port 4200 n'est nécessaire.
+
+Pour le développement avec hot-reload :
+
+```bash
+npm run dev
+```
+
+`npm run dev` lance le serveur Angular (port 4200) et Electron en parallèle ; Electron charge l'app via `loadURL` (rechargement à chaud).
 
 ## Scripts disponibles
 
 | Commande | Description |
 |----------|-------------|
-| `npm run start` | Lance Angular + Electron en mode développement |
-| `npm run build` | Build complet (Angular + Electron package) |
+| `npm run start` | **Mode production** : build Angular + Electron sur le build statique (`loadFile`) |
+| `npm run dev` | **Mode développement** : Angular (hot-reload) + Electron (`loadURL` localhost:4200) |
+| `npm run build` | Build complet + packaging Electron (`electron-forge package`) |
 | `npm run prisma:generate` | Régénère le client Prisma |
 | `npm run prisma:migrate` | Crée et applique une nouvelle migration |
 | `npm run prisma:studio` | Ouvre Prisma Studio (interface DB visuelle) |
