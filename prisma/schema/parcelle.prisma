@@ -6,7 +6,7 @@ enum Exposition {
 
 model Parcelle {
   id         Int         @id @default(autoincrement())
-  nom        String
+  nom        String      @unique
   superficie Float?
   exposition Exposition?
   notes      String?

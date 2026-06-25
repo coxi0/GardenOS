@@ -1,6 +1,48 @@
 import { ipcMain } from 'electron';
 import { getDb } from '../services/db.service';
-import type { CreatePlanteDto, UpdatePlanteDto } from '../../shared/ipc/plante.ipc';
+import type { CreatePlanteDto, UpdatePlanteDto, WikipediaResult } from '../../shared/ipc/plante.ipc';
+
+/**
+ * Récupère la propriété P225 (taxon name) d'une entité Wikidata.
+ * Retourne null si l'entité n'est pas un taxon ou en cas d'erreur réseau.
+ */
+async function fetchTaxonName(wikidataId: string): Promise<string | null> {
+  try {
+    const url = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${wikidataId}&props=claims&format=json&origin=*`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json() as any;
+    return data?.entities?.[wikidataId]?.claims?.P225?.[0]?.mainsnak?.datavalue?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Interroge Wikipedia (FR) puis Wikidata pour enrichir une plante à partir de son nom.
+ * Flux : Wikipedia REST API → wikibase_item → Wikidata P225 (nom scientifique).
+ * Retourne null si la page est introuvable.
+ */
+async function scrapeWikipedia(nom: string): Promise<WikipediaResult | null> {
+  const wikiUrl = `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(nom)}`;
+  const wikiRes = await fetch(wikiUrl);
+  if (!wikiRes.ok) return null;
+  const data = await wikiRes.json() as any;
+
+  // Si le titre est déjà un binôme latin (ex : "Matricaria chamomilla"), on le garde directement.
+  const titleIsBinomial = /^[A-Z][a-z]+ [a-z]+/.test(data.title ?? '');
+  let nomLatin: string | null = titleIsBinomial ? data.title : null;
+  if (!nomLatin && data.wikibase_item) {
+    nomLatin = await fetchTaxonName(data.wikibase_item);
+  }
+
+  return {
+    title:       data.title,
+    nomLatin,
+    description: data.description ?? null,
+    extract:     data.extract     ?? null,
+  };
+}
 
 /**
  * Enregistre tous les handlers IPC liés aux plantes et types de plante.
@@ -57,5 +99,15 @@ export function registerPlanteHandlers() {
   /** Supprime une plante par son identifiant. */
   ipcMain.handle('plantes:delete', async (_event, { id }: { id: number }) => {
     await db.plante.delete({ where: { id } });
+  });
+
+  /** Enrichit une plante via Wikipedia + Wikidata (appel réseau côté main, pas renderer). */
+  ipcMain.handle('plantes:scrapeWikipedia', async (_event, { nom }: { nom: string }): Promise<WikipediaResult | null> => {
+    try {
+      return await scrapeWikipedia(nom);
+    } catch (err) {
+      console.error('[plantes:scrapeWikipedia]', err);
+      return null;
+    }
   });
 }

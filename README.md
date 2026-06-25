@@ -105,7 +105,7 @@ Relations clés : `Parcelle` → `Culture` → `Recolte` (1:N), `Culture` ↔ `T
 
 ### Schéma entité-relation
 
-Le diagramme complet de la base de données est disponible dans le fichier [`gardenOs_Bd.drawio`](gardenOs_Bd.drawio) (ouvrir avec [draw.io](https://app.diagrams.net/)). Une version PDF est également fournie : [`gardenOs_Bd.pdf`](gardenOs_Bd.pdf).
+Le diagramme complet de la base de données est disponible dans le fichier [`gardenOs_Bd.drawio`](gardenOs_Bd.drawio) (ouvrir avec [draw.io](https://app.diagrams.net/)). Une version PDF est également fournie : [`gardenOs_Bd.drawio.pdf`](gardenOs_Bd.drawio.pdf).
 
 ## Fonctionnalités
 
@@ -121,9 +121,9 @@ Le diagramme complet de la base de données est disponible dans le fichier [`gar
 
 ## Remise en question et pistes d'amélioration
 
-Sur le plan de la modélisation, plusieurs choix auraient mérité plus de réflexion en amont. `StatutCulture` aurait dû être un `enum` Prisma dès le départ plutôt qu'une table de référence, puisque ses valeurs sont fixes et jamais modifiées par l'utilisateur, utiliser une table complète ajoute une jointure, un handler IPC et une section dans les Paramètres pour rien. De même, l'enum `Exposition` a été ajouté tardivement, ce qui a nécessité une migration et une correction du seed en cours de développement alors qu'une conception initiale plus rigoureuse l'aurait inclus dès le début. Il manque aussi une contrainte `@unique` sur le nom des parcelles, ce qui permet à deux parcelles d'avoir le même nom sans erreur.
+Sur le plan de la modélisation, plusieurs choix auraient mérité plus de réflexion en amont. `StatutCulture` aurait dû être un `enum` Prisma dès le départ plutôt qu'une table de référence, puisque ses valeurs sont fixes et jamais modifiées par l'utilisateur, utiliser une table complète ajoute une jointure, un handler IPC et une section dans les Paramètres pour rien. De même, l'enum `Exposition` a été ajouté tardivement, ce qui a nécessité une migration et une correction du seed en cours de développement alors qu'une conception initiale plus rigoureuse l'aurait inclus dès le début. Une contrainte `@unique` sur le nom des parcelles a depuis été ajoutée (migration `parcelle_nom_unique`) pour empêcher deux parcelles de porter le même nom.
 
-Côté architecture, le `wikipedia.service.ts` appelle les APIs Wikipedia et Wikidata directement depuis le renderer au lieu de passer par un handler IPC dans le main process. Ce n'est pas un problème fonctionnel mais c'est une incohérence par rapport à la philosophie Electron où le renderer est censé ne communiquer qu'avec le preload. Le `ParametresComponent` utilise également `ChangeDetectorRef` avec mutation d'objet ordinaire au lieu de signaux, contrairement à tous les autres composants, ce qui le rend moins cohérent avec le reste du code. Sur la qualité générale, il n'y a aucune gestion d'erreur visible pour l'utilisateur, les erreurs restent en console.
+Côté architecture, l'appel aux APIs Wikipedia et Wikidata a été déplacé dans un handler IPC du main process (`plantes:scrapeWikipedia`) : le `wikipedia.service.ts` du renderer délègue désormais au preload, conformément à la philosophie Electron où le renderer ne communique qu'avec le preload. Le `ParametresComponent` utilise également `ChangeDetectorRef` avec mutation d'objet ordinaire au lieu de signaux, contrairement à tous les autres composants, ce qui le rend moins cohérent avec le reste du code. Sur la qualité générale, il n'y a aucune gestion d'erreur visible pour l'utilisateur, les erreurs restent en console.
 
 Concernant la gestion du temps et l'utilisation de l'IA, le projet a été développé avec l'assistance de Claude code, ce qui a clairement eu un effet pervers sur la façon de travailler. Savoir que l'IA peut réécrire un fichier entier en quelques secondes encourage une certaine passivité dans la recherche et plus une suite de question réponse avec le prompt. C'est la meme chose pour la correction de bug ou la recherche est beaucoup plus rapide que de tester chaque ligne.  
 
