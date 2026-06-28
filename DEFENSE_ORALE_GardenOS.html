@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>GardenOS — Dossier de défense orale</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 10.5pt; line-height: 1.5; color: #1f2937; max-width: 900px; margin: 0 auto; padding: 0 4px;
+  }
+  h1 { font-size: 21pt; color: #14532d; border-bottom: 3px solid #16a34a; padding-bottom: 6px; margin: 18px 0 12px; }
+  h2 { font-size: 15pt; color: #15803d; margin: 22px 0 8px; border-bottom: 1px solid #d1fae5; padding-bottom: 3px; }
+  h3 { font-size: 12pt; color: #166534; margin: 16px 0 6px; }
+  h4 { font-size: 11pt; color: #374151; margin: 12px 0 4px; }
+  p { margin: 7px 0; }
+  a { color: #15803d; text-decoration: none; }
+  strong { color: #111827; }
+  code {
+    font-family: 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace; font-size: 9pt;
+    background: #f0fdf4; color: #14532d; padding: 1px 5px; border-radius: 4px; border: 1px solid #dcfce7;
+  }
+  pre {
+    background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 8px;
+    margin: 10px 0; border: 1px solid #1e293b; page-break-inside: avoid;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  pre code { background: none; color: #e2e8f0; border: none; padding: 0; font-size: 8.6pt; line-height: 1.45; white-space: pre-wrap; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9.3pt; page-break-inside: avoid; }
+  th, td { border: 1px solid #d1d5db; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #16a34a; color: #fff; font-weight: 600; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  blockquote {
+    border-left: 4px solid #16a34a; background: #f0fdf4; margin: 10px 0; padding: 8px 14px;
+    color: #374151; border-radius: 0 6px 6px 0; page-break-inside: avoid;
+  }
+  ul, ol { margin: 7px 0; padding-left: 24px; }
+  li { margin: 3px 0; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 16px 0; }
+  .page-break { page-break-after: always; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+</style></head><body>
+<h1>GardenOS — Dossier de défense orale</h1>
+<p><strong>Projet SGBD — Electron + Prisma + Angular + SQLite</strong> Application de gestion d'un jardin potager.</p>
+<p>Ce document a deux usages :</p>
+<ol><li><strong>Récapitulatif technique ultra-précis</strong> de tout le code (ce qui existe, où, et pourquoi).</li><li><strong>Préparation à l'oral</strong> : flux complets, traduction « bouton → SQL », questions/réponses anticipées, et défense honnête des points faibles.</li></ol>
+<blockquote>Rappel barème : Fonctionnalité 10 % · Architecture/qualité 10 % · Modélisation 10 % · <strong>Compréhension orale 70 %</strong>. Tout se joue sur votre capacité à <em>expliquer vos choix</em> et à faire le <em>lien avec le SQL</em>.</blockquote>
+<hr>
+<h2>Table des matières</h2>
+<ol><li>Synthèse express (à dire en 2 minutes)</li><li>La stack et pourquoi ces choix</li><li>Architecture Electron : 3 processus + cycle de vie d'un appel</li><li>Le flux complet illustré (bouton → écran)</li><li>Modélisation de la base : les 12 modèles</li><li>Prisma → SQL : table de correspondance</li><li>« Derrière chaque bouton » : 8 flux concrets avec leur SQL</li><li>La couche Angular, concept par concept (avec emplacements)</li><li>Checklist de conformité aux consignes</li><li>Questions d'oral probables + réponses modèles</li><li>Points faibles assumés et comment les défendre</li><li>Annexe : glossaire &amp; commandes</li><li>Défense des points faibles — réponses d'oral prêtes</li><li>Questions réellement posées à l'oral — réponses + exemples</li></ol>
+<div class="page-break"></div>
+<h2>1. Synthèse express (à dire en 2 minutes)</h2>
+<blockquote>« GardenOS est une application de bureau <strong>Electron</strong> pour gérer un potager : un catalogue de <strong>plantes</strong>, un <strong>jardin</strong> découpé en <strong>parcelles</strong>, des <strong>cultures</strong> (une plante semée dans une parcelle), leurs <strong>récoltes</strong>, un <strong>stock</strong> de graines/outils, et un <strong>journal de bord</strong>.  L'architecture suit le modèle Electron en <strong>trois processus</strong> : le <strong>main</strong> (Node.js) détient l'accès à la base via <strong>Prisma</strong> ; le <strong>preload</strong> expose une API sécurisée au front ; le <strong>renderer</strong> est une application <strong>Angular</strong> qui n'accède jamais directement à la base, seulement via des canaux <strong>IPC</strong>.  La base est en <strong>SQLite local</strong> (aucun cloud), modélisée avec Prisma : <strong>12 modèles</strong>, des relations <strong>1:N</strong>, une table de jonction <strong>N:M</strong> (<code>CultureTag</code>), un <strong>enum</strong> (<code>Exposition</code>), des comportements <strong>ON DELETE</strong> explicites, et des <code>include</code> (jointures). Côté Angular : composants <strong>standalone</strong>, <strong>signals</strong>, <strong>computed</strong>, <strong>effect</strong>, formulaires <strong>réactifs</strong>, <strong>routing</strong>, et un découpage <strong>service / composant</strong> strict. »</blockquote>
+<p>Si on ne retient qu'une phrase : <strong>le renderer demande → le preload transmet → le main exécute Prisma → SQLite répond → ça remonte en sens inverse.</strong></p>
+<hr>
+<h2>2. La stack et pourquoi ces choix</h2>
+<table><thead><tr><th>Couche</th><th>Techno</th><th>Rôle</th></tr></thead><tbody><tr><td>Application de bureau</td><td><strong>Electron 41</strong></td><td>Fenêtre native multi-plateforme</td></tr><tr><td>Backend (main)</td><td><strong>Node.js + Prisma 7</strong></td><td>Logique d'accès aux données</td></tr><tr><td>Base de données</td><td><strong>SQLite</strong> (fichier local)</td><td>Persistance, zéro dépendance cloud</td></tr><tr><td>ORM</td><td><strong>Prisma</strong> + adaptateur <code>better-sqlite3</code></td><td>Mapping objet↔relationnel, migrations</td></tr><tr><td>Frontend (renderer)</td><td><strong>Angular 21</strong></td><td>Interface utilisateur réactive</td></tr><tr><td>Bundler main/preload</td><td><strong>Vite</strong> (via electron-forge)</td><td>Compilation TypeScript</td></tr><tr><td>Empaquetage</td><td><strong>Electron Forge</strong></td><td><code>package</code> / <code>make</code></td></tr></tbody></table>
+<p><strong>Points de vocabulaire à maîtriser :</strong></p>
+<ul><li><strong>Prisma 7</strong> utilise le nouveau generator <code>prisma-client</code> (sortie dans <code>generated/prisma</code>, voir <code>prisma/schema/_config.prisma</code>) et un <strong>driver adapter</strong> (<code>@prisma/adapter-better-sqlite3</code>) plutôt que l'ancien moteur binaire. C'est pour ça qu'on voit un compilateur de requêtes WASM dans <code>.vite/build</code>.</li><li><strong><code>better-sqlite3</code> est un module natif</strong> : il est compilé en C++ pour un ABI Node précis. Electron embarque sa propre version de Node/V8 (ABI différent), d'où l'étape <code>npx @electron/rebuild -f -w better-sqlite3</code> du README. Si on saute cette étape : erreur « NODE_MODULE_VERSION mismatch ».</li><li><strong>Vite externalise <code>better-sqlite3</code></strong> (<code>vite.main.config.ts</code>, <code>external: ['better-sqlite3', /\.node$/]</code>) pour ne pas tenter de bundler un binaire natif.</li></ul>
+<hr>
+<h2>3. Architecture Electron : 3 processus + cycle de vie d'un appel</h2>
+<h3>3.1 Les trois processus</h3>
+<pre><code>┌─────────────────────────┐         ┌──────────────────────────┐
+│   RENDERER (Angular)     │         │      MAIN (Node.js)      │
+│   chrome, sandboxé       │         │   accès complet à l'OS    │
+│                          │  IPC    │                          │
+│ window.electronAPI[...]  │ ──────► │ ipcMain.handle(canal,fn) │
+│        ▲                 │ invoke  │        │                 │
+│        │ Promise         │ ◄────── │        ▼                 │
+│        │                 │ réponse │   Prisma Client          │
+└────────┼─────────────────┘         │        │                 │
+         │                           │        ▼                 │
+   ┌─────┴──────┐                    │   SQLite (dev.db)        │
+   │  PRELOAD   │  contextBridge     └──────────────────────────┘
+   │ expose une │  (pont sécurisé,
+   │ API typée  │   contextIsolation: true)
+   └────────────┘</code></pre>
+<ul><li><strong>Main</strong> — <code>src/main/main.ts</code> : crée la <code>BrowserWindow</code> (lignes 21-38), enregistre tous les handlers IPC au démarrage (<code>app.on('ready')</code>, lignes 40-47), et <strong>ferme proprement Prisma</strong> à la sortie (<code>app.on('before-quit')</code> → <code>disconnectDb()</code>, lignes 55-57). En dev il charge <code>http://localhost:4200</code> (serveur Angular) ; en prod il charge le HTML Angular compilé.</li><li><strong>Preload</strong> — <code>src/preload/preload.ts</code> : un seul <code>contextBridge.exposeInMainWorld('electronAPI', { ... })</code>. Chaque clé est un canal qui appelle <code>ipcRenderer.invoke('canal', data)</code>. C'est la <strong>seule</strong> surface exposée au renderer.</li><li><strong>Renderer</strong> — <code>renderer/</code> : Angular. Il ne connaît que <code>window.electronAPI</code>, typé par <code>renderer/src/electron.d.ts</code>.</li></ul>
+<h3>3.2 Sécurité (à connaître absolument)</h3>
+<p>Dans <code>main.ts</code>, la fenêtre est créée avec :</p>
+<pre><code class="lang-ts">webPreferences: {
+  preload: path.join(__dirname, 'preload.js'),
+  contextIsolation: true,   // le renderer et le preload ont des contextes JS isolés
+  nodeIntegration: false,   // le renderer NE peut PAS faire require('fs'), etc.
+}</code></pre>
+<p><strong>Pourquoi c'est important :</strong> si <code>nodeIntegration</code> était à <code>true</code>, une faille XSS dans le renderer donnerait un accès Node complet (lecture disque, etc.). Ici, le renderer est sandboxé et ne peut faire QUE ce que le preload expose explicitement. C'est le principe du <strong>moindre privilège</strong>.</p>
+<p><code>forge.config.ts</code> renforce encore avec les <strong>Fuses</strong> (<code>OnlyLoadAppFromAsar</code>, désactivation de <code>RunAsNode</code>, etc.) et <code>asar: true</code>.</p>
+<h3>3.3 Le contrat partagé (<code>src/shared/ipc/</code>)</h3>
+<p>Le dossier <code>src/shared/ipc/</code> contient les <strong>interfaces et DTOs</strong> importés <em>à la fois</em> par le main (handlers) et par le renderer (services + <code>electron.d.ts</code>). C'est le <strong>contrat unique</strong> : si je change un DTO, le compilateur me signale toutes les ruptures des deux côtés. Exemple : <code>CreateCultureDto</code> (<code>jardin.ipc.ts</code>, lignes 86-96).</p>
+<ul><li><code>DTO</code> = <em>Data Transfer Object</em> : la forme exacte des données qui transitent. Les <code>Create*Dto</code> n'ont pas d'<code>id</code> ; les <code>Update*Dto</code> ont <code>id</code> obligatoire et le reste optionnel (mise à jour partielle).</li></ul>
+<div class="page-break"></div>
+<h2>4. Le flux complet illustré (le trajet canonique)</h2>
+<p><strong>Scénario : l'utilisateur clique « Supprimer » sur un article de stock.</strong></p>
+<ol><li><strong>Template</strong> <code>stock.component.html</code> (ligne 55) :</li></ol>
+<pre><code class="lang-html">   &lt;button (click)="supprimer(item.id)"&gt;Supprimer&lt;/button&gt;</code></pre>
+<ol><li><strong>Composant</strong> <code>stock.component.ts</code> (lignes 130-137) :</li></ol>
+<pre><code class="lang-ts">   async supprimer(id: number) {
+     try {
+       await this.stockService.delete(id);                       // (A) appel service
+       this.stocks.update(liste =&gt; liste.filter(s =&gt; s.id !== id)); // (D) MAJ optimiste du signal
+     } catch (err) { console.error('[stock:supprimer]', err); }
+   }</code></pre>
+<ol><li><strong>Service</strong> <code>stock.service.ts</code> (ligne 39) :</li></ol>
+<pre><code class="lang-ts">   delete(id: number): Promise&lt;void&gt; {
+     return window.electronAPI['stocks:delete']({ id });          // (B) passe par l'API preload
+   }</code></pre>
+<ol><li><strong>Preload</strong> <code>preload.ts</code> (ligne 25) :</li></ol>
+<pre><code class="lang-ts">   'stocks:delete': (data) =&gt; ipcRenderer.invoke('stocks:delete', data); // franchit la frontière de process</code></pre>
+<ol><li><strong>Handler (main)</strong> <code>stock.handlers.ts</code> (lignes 67-74) :</li></ol>
+<pre><code class="lang-ts">   ipcMain.handle('stocks:delete', async (_event, { id }) =&gt; {
+     try { await db.stockItem.delete({ where: { id } }); }        // (C) Prisma → SQLite
+     catch (err) { console.error('[stocks:delete]', err); throw err; }
+   });</code></pre>
+<ol><li><strong>Prisma</strong> traduit en SQL : <code>DELETE FROM "StockItem" WHERE "id" = ?;</code></li><li>La promesse se résout, remonte main → preload → service → composant, et le <strong>signal</strong> <code>stocks</code> est mis à jour → Angular re-render automatiquement la grille.</li></ol>
+<p><strong>Les 4 frontières à nommer à l'oral :</strong> (A) composant↔service, (B) service↔preload, (C) handler↔Prisma, (D) réactivité signal↔template. Le passage <strong>renderer → main</strong> est le seul franchissement de <em>processus</em> (sérialisation par structured clone).</p>
+<hr>
+<h2>5. Modélisation de la base : les 12 modèles</h2>
+<h3>5.1 Vue d'ensemble (modèle conceptuel en texte)</h3>
+<pre><code>TypePlante 1───N Plante 1───N Culture N───1 Parcelle N───1 TypeSol
+                   │              │  │
+                   │              │  └──N Recolte
+              N    │         1    │
+           StockItem           Journal
+                   │              │
+            CategorieStock    Culture N───N Tag   (via CultureTag)
+                                 │
+                          StatutCulture 1───N Culture</code></pre>
+<table><thead><tr><th>#</th><th>Modèle</th><th>Type</th><th>Rôle</th></tr></thead><tbody><tr><td>1</td><td><code>Plante</code></td><td>Entité</td><td>Catalogue : nom, latin, calendrier de semis, arrosage…</td></tr><tr><td>2</td><td><code>TypePlante</code></td><td>Référentiel</td><td>Légume, Aromatique, Fruit… (<code>@unique</code>)</td></tr><tr><td>3</td><td><code>Parcelle</code></td><td>Entité</td><td>Zone du jardin, position grille <code>posX/posY</code>, <code>exposition</code> (enum)</td></tr><tr><td>4</td><td><code>TypeSol</code></td><td>Référentiel</td><td>Limoneux, Sableux… (<code>@unique</code>)</td></tr><tr><td>5</td><td><code>Culture</code></td><td>Entité centrale</td><td>Une plante semée dans une parcelle, avec dates et statut</td></tr><tr><td>6</td><td><code>StatutCulture</code></td><td>Référentiel</td><td>Planifiée, En cours, Récoltée, Abandonnée (<code>@unique</code>)</td></tr><tr><td>7</td><td><code>Recolte</code></td><td>Entité</td><td>Quantité récoltée pour une culture</td></tr><tr><td>8</td><td><code>Journal</code></td><td>Entité</td><td>Entrée datée liée à une culture</td></tr><tr><td>9</td><td><code>Tag</code></td><td>Entité</td><td>Étiquette libre (<code>@unique</code>)</td></tr><tr><td>10</td><td><code>CultureTag</code></td><td><strong>Jonction N:M</strong></td><td>Lie <code>Culture</code> et <code>Tag</code></td></tr><tr><td>11</td><td><code>StockItem</code></td><td>Entité</td><td>Article en stock (graine, outil…)</td></tr><tr><td>12</td><td><code>CategorieStock</code></td><td>Référentiel</td><td>Graine, Outil, Engrais… (<code>@unique</code>)</td></tr></tbody></table>
+<blockquote><strong>12 modèles</strong> alors que le minimum est 7. Le schéma est <strong>découpé par domaine</strong> dans <code>prisma/schema/</code> (culture, parcelle, plante, recolte, stock, tag, journal, refs) — Prisma fusionne tous les <code>.prisma</code> du dossier. C'est rendu possible par <code>prisma.config.ts</code> (<code>schema: "prisma/schema"</code>).</blockquote>
+<h3>5.2 Clé primaire (chaque table)</h3>
+<p>Toutes : <code>id Int @id @default(autoincrement())</code>. En SQL → <code>"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT</code>. <strong>Exception</strong> : <code>CultureTag</code> a une <strong>clé primaire composite</strong> <code>@@id([cultureId, tagId])</code> → en SQL <code>PRIMARY KEY ("cultureId", "tagId")</code>.</p>
+<h3>5.3 Relation 1:N (un-à-plusieurs)</h3>
+<p>Exemple <code>Parcelle</code> → <code>Culture</code> (<code>parcelle.prisma</code> + <code>culture.prisma</code>) :</p>
+<pre><code class="lang-prisma">model Culture {
+  parcelleId Int
+  parcelle   Parcelle @relation(fields: [parcelleId], references: [id], onDelete: Cascade)
+}
+model Parcelle {
+  cultures Culture[]   // côté "plusieurs"
+}</code></pre>
+<ul><li>Le <strong>côté qui porte la clé étrangère</strong> (<code>parcelleId</code>) est le côté « N ». <code>parcelle.prisma</code> n'a qu'un tableau <code>Culture[]</code> (champ virtuel, <strong>pas</strong> une colonne).</li><li><strong>Lien SQL</strong> : la FK <code>Culture.parcelleId</code> référence <code>Parcelle.id</code>. C'est exactement un <code>FOREIGN KEY ("parcelleId") REFERENCES "Parcelle" ("id")</code>.</li></ul>
+<p>Autres 1:N du projet : <code>Plante</code>→<code>Culture</code>, <code>StatutCulture</code>→<code>Culture</code>, <code>TypePlante</code>→<code>Plante</code>, <code>TypeSol</code>→<code>Parcelle</code>, <code>CategorieStock</code>→<code>StockItem</code>, <code>Plante</code>→<code>StockItem</code>, <code>Culture</code>→<code>Recolte</code>, <code>Culture</code>→<code>Journal</code>.</p>
+<h3>5.4 Relation N:M (plusieurs-à-plusieurs) — table de jonction explicite</h3>
+<p><code>tag.prisma</code> :</p>
+<pre><code class="lang-prisma">model Tag {
+  id       Int          @id @default(autoincrement())
+  libelle  String       @unique
+  cultures CultureTag[]
+}
+model CultureTag {
+  cultureId Int
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
+  tagId     Int
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([cultureId, tagId])   // PK composite = empêche les doublons (culture, tag)
+}</code></pre>
+<ul><li>Une culture a plusieurs tags, un tag concerne plusieurs cultures → <strong>N:M</strong>. On le matérialise par une <strong>table pivot</strong> <code>CultureTag</code> portant deux FK.</li><li><strong>Pourquoi une table de jonction explicite</strong> (et pas la relation implicite <code>Tag[] &lt;-&gt; Culture[]</code> de Prisma) ? Parce que la consigne l'exige (« table pivot explicite avec <code>@@id</code>») et que c'est extensible : on pourrait y ajouter une colonne (date d'ajout du tag, etc.).</li><li><strong>Équivalent SQL</strong> : c'est le schéma classique de décomposition d'un N:M en deux 1:N autour d'une table d'association.</li></ul>
+<h3>5.5 ON DELETE : trois comportements, choisis exprès</h3>
+<table><thead><tr><th>Relation</th><th><code>onDelete</code></th><th>SQL</th><th>Raison</th></tr></thead><tbody><tr><td><code>Culture</code> → <code>Plante</code></td><td><strong>Cascade</strong></td><td><code>ON DELETE CASCADE</code></td><td>Si je supprime une plante du catalogue, ses cultures n'ont plus de sens</td></tr><tr><td><code>Culture</code> → <code>Parcelle</code></td><td><strong>Cascade</strong></td><td><code>ON DELETE CASCADE</code></td><td>Supprimer une parcelle supprime ses cultures</td></tr><tr><td><code>Recolte</code> → <code>Culture</code></td><td><strong>Cascade</strong></td><td><code>ON DELETE CASCADE</code></td><td>Une récolte sans culture est orpheline</td></tr><tr><td><code>Journal</code> → <code>Culture</code></td><td><strong>Cascade</strong></td><td><code>ON DELETE CASCADE</code></td><td>Idem</td></tr><tr><td><code>CultureTag</code> → <code>Culture</code>/<code>Tag</code></td><td><strong>Cascade</strong></td><td><code>ON DELETE CASCADE</code></td><td>Nettoie les liens de jonction</td></tr><tr><td><code>Culture</code> → <code>StatutCulture</code></td><td><strong>Restrict</strong> (défaut)</td><td><code>ON DELETE RESTRICT</code></td><td>Interdit de supprimer un statut encore utilisé</td></tr><tr><td><code>Plante</code> → <code>TypePlante</code></td><td><strong>Restrict</strong> (défaut)</td><td><code>ON DELETE RESTRICT</code></td><td>Interdit de supprimer un type encore utilisé</td></tr><tr><td><code>StockItem</code> → <code>CategorieStock</code></td><td><strong>Restrict</strong> (défaut)</td><td><code>ON DELETE RESTRICT</code></td><td>Idem</td></tr><tr><td><code>Parcelle</code> → <code>TypeSol</code> (optionnel)</td><td><strong>SetNull</strong> (défaut)</td><td><code>ON DELETE SET NULL</code></td><td>Le sol redevient « non défini »</td></tr><tr><td><code>StockItem</code> → <code>Plante</code> (optionnel)</td><td><strong>SetNull</strong> (défaut)</td><td><code>ON DELETE SET NULL</code></td><td>L'article perd juste son lien plante</td></tr></tbody></table>
+<p><strong>À retenir :</strong> quand je n'écris pas <code>onDelete</code>, Prisma applique un défaut qui dépend de l'obligation du champ — <strong>Restrict</strong> si la FK est obligatoire, <strong>SetNull</strong> si elle est optionnelle (<code>Int?</code>). Je peux le <strong>prouver</strong> en montrant le SQL généré dans <code>prisma/migrations/20260518134503_init/migration.sql</code> (les <code>ON DELETE RESTRICT</code>, <code>SET NULL</code>, <code>CASCADE</code> y sont écrits noir sur blanc).</p>
+<blockquote>Sur SQLite, les cascades fonctionnent grâce à <code>PRAGMA foreign_keys = ON</code>. C'est le moteur SQLite qui propage la suppression, pas Prisma.</blockquote>
+<h3>5.6 Enum</h3>
+<p><code>parcelle.prisma</code> :</p>
+<pre><code class="lang-prisma">enum Exposition { PLEIN_SOLEIL  MI_OMBRE  OMBRE }
+model Parcelle { exposition Exposition? }</code></pre>
+<ul><li><strong>Point clé à connaître</strong> : SQLite <strong>n'a pas de type enum natif</strong>. Prisma stocke l'enum comme une colonne <strong><code>TEXT</code></strong> (<code>"exposition" TEXT</code>). C'est <em>exactement</em> pour ça que la migration <code>20260531185639_add_exposition_enum</code> est <strong>vide</strong> (<code>-- This is an empty migration</code>) : la colonne était déjà du TEXT, transformer un <code>String?</code> en <code>enum Exposition?</code> ne change rien au schéma SQL, seulement la <strong>validation côté Prisma/TypeScript</strong>.</li><li>Côté front, l'enum est ré-exprimé en union de types : <code>type Exposition = 'PLEIN_SOLEIL' | 'MI_OMBRE' | 'OMBRE'</code> (<code>jardin.ipc.ts</code>, ligne 2).</li></ul>
+<h3>5.7 Champs optionnels (nullable)</h3>
+<p>Beaucoup : <code>Plante.nomLatin String?</code>, <code>description String?</code>, <code>Culture.dateSemisReelle DateTime?</code>, <code>StockItem.seuilAlerte Float?</code>, etc. En SQL, l'absence de <code>NOT NULL</code>. La distinction <em>prévu</em> vs <em>réel</em> sur les dates de culture (<code>dateSemisPrevue</code> obligatoire / <code>dateSemisReelle?</code> optionnelle) est un vrai choix métier : on planifie d'abord, on constate ensuite.</p>
+<h3>5.8 Historique des migrations (sachez le raconter)</h3>
+<p>7 migrations dans <code>prisma/migrations/</code>, qui <strong>racontent l'évolution du modèle</strong> :</p>
+<ol><li><code>…082607_init</code> : tables <code>Garden</code>/<code>Plant</code> — <strong>vestiges du template</strong> todos-app de départ.</li><li><code>…134503_init</code> : on <strong>supprime</strong> Garden/Plant et on crée le vrai schéma FR. À ce stade il y avait <em>en plus</em> <code>Alerte</code>, <code>Association</code>, <code>TypeAlerte</code>, <code>TypeAssociation</code>.</li><li><code>…typeplante_optional</code> : <code>typePlanteId</code> devient nullable.</li><li><code>…add_parcelle_pos</code> : ajout de <code>posX</code>/<code>posY</code> (grille du jardin) + <code>typePlanteId</code> redevient obligatoire.</li><li><code>…remove_journal_humeur</code> : suppression de la colonne <code>humeur</code> du journal.</li><li><code>…remove_alerte_association</code> : suppression des 4 tables Alerte/Association (simplification du périmètre).</li><li><code>…add_exposition_enum</code> : <strong>vide</strong> (enum = TEXT, cf. 5.6).</li></ol>
+<blockquote>La chaîne est <strong>cohérente et rejouable</strong> : <code>npx prisma migrate deploy</code> reconstruit la base depuis zéro. Les tables Garden/Plant n'existent plus dans la base finale (supprimées en migration 2). Sur SQLite, les modifs de colonnes passent par la technique « <strong>table neuve + copie + rename</strong> » (<code>RedefineTables</code>), visible dans les migrations 3-5 — c'est parce que SQLite ne sait pas faire <code>ALTER COLUMN</code>.</blockquote>
+<div class="page-break"></div>
+<h2>6. Prisma → SQL : table de correspondance</h2>
+<blockquote>Nuance importante à dire à l'oral : un <code>include</code> Prisma n'émet pas forcément <strong>un</strong> <code>JOIN</code>. Par défaut, Prisma exécute <strong>plusieurs <code>SELECT</code></strong> (un par relation) qu'il <strong>assemble en mémoire</strong>. On peut forcer un vrai JOIN SQL avec <code>relationLoadStrategy: "join"</code>. Je donne ci-dessous l'<strong>équivalent logique</strong> (ce que l'examinateur veut voir) ; le résultat est identique, c'est la stratégie d'exécution qui diffère.</blockquote>
+<table><thead><tr><th>Appel Prisma</th><th>SQL (équivalent logique)</th></tr></thead><tbody><tr><td><code>db.plante.findMany({ orderBy: { nom: 'asc' } })</code></td><td><code>SELECT * FROM "Plante" ORDER BY "nom" ASC;</code></td></tr><tr><td><code>db.plante.count()</code></td><td><code>SELECT COUNT(*) FROM "Plante";</code></td></tr><tr><td><code>db.plante.findUnique({ where: { id } })</code></td><td><code>SELECT * FROM "Plante" WHERE "id" = ? LIMIT 1;</code></td></tr><tr><td><code>findMany({ include: { typePlante: true } })</code></td><td><code>SELECT p.*, t.* FROM "Plante" p JOIN "TypePlante" t ON t."id" = p."typePlanteId";</code></td></tr><tr><td><code>db.plante.create({ data })</code></td><td><code>INSERT INTO "Plante" (...) VALUES (...) RETURNING *;</code></td></tr><tr><td><code>db.plante.update({ where:{id}, data })</code></td><td><code>UPDATE "Plante" SET ... WHERE "id" = ?;</code></td></tr><tr><td><code>db.plante.delete({ where:{id} })</code></td><td><code>DELETE FROM "Plante" WHERE "id" = ?;</code></td></tr><tr><td><code>db.journal.findMany({ where:{cultureId}, orderBy:{date:'desc'} })</code></td><td><code>SELECT * FROM "Journal" WHERE "cultureId" = ? ORDER BY "date" DESC;</code></td></tr><tr><td><code>db.tag.connectOrCreate({ where:{libelle}, create:{libelle} })</code></td><td><code>SELECT id FROM "Tag" WHERE "libelle"=?;</code> puis <code>INSERT</code> si absent</td></tr></tbody></table>
+<p><strong>Le <code>RETURNING *</code></strong> : Prisma récupère immédiatement la ligne créée/modifiée (avec l'<code>id</code> auto-incrémenté) — c'est ce qui permet aux handlers de renvoyer l'objet complet au front sans 2e requête.</p>
+<hr>
+<h2>7. « Derrière chaque bouton » : 8 flux concrets avec leur SQL</h2>
+<h3>Flux 1 — Ouvrir la page « Plantes » (lecture + jointure)</h3>
+<p>Bouton/route : <code>/plantes</code>. <code>PlantesComponent.ngOnInit</code> appelle <code>planteService.getAll()</code> → canal <code>plantes:getAll</code> → <code>plante.handlers.ts:24</code> :</p>
+<pre><code class="lang-ts">db.plante.findMany({ include: { typePlante: true }, orderBy: { nom: 'asc' } });</code></pre>
+<p><strong>SQL :</strong></p>
+<pre><code class="lang-sql">SELECT p.*, t."libelle"
+FROM "Plante" p
+JOIN "TypePlante" t ON t."id" = p."typePlanteId"
+ORDER BY p."nom" ASC;</code></pre>
+<p>Le résultat (typé <code>Plante[]</code> avec <code>typePlante</code> inclus) remonte, est stocké dans le signal <code>plantes</code>, et le <code>computed</code> <code>plantesFiltrees</code> l'affiche via <code>@for</code>.</p>
+<h3>Flux 2 — Dashboard : le <strong>comptage</strong> (agrégat) + agrégation applicative</h3>
+<p><code>dashboard.component.ts:38-51</code> charge <strong>3 sources en parallèle</strong> avec <code>Promise.all</code> : <code>getParcelles()</code>, <code>stockService.getAll()</code>, et <code>planteService.count()</code>.</p>
+<ul><li><code>count()</code> → <code>plante.handlers.ts:19</code> → <code>db.plante.count()</code> → <strong><code>SELECT COUNT(*) FROM "Plante";</code></strong> → affiché dans la carte « Plantes dans le catalogue » (<code>dashboard.component.html:9</code>). <strong>C'est l'agrégat exigé par la consigne, visible dans l'UI.</strong></li><li>Les autres stats (<code>cultures().length</code>, <code>totalRecoltes</code>, <code>alertes</code>) sont calculées <strong>côté client</strong> par des <code>computed</code> à partir des parcelles déjà chargées (avec leurs cultures/récoltes incluses). À l'oral : je sais distinguer <strong>agrégat SQL</strong> (<code>COUNT</code>) et <strong>agrégation applicative</strong> (réduction JS sur des données déjà jointes).</li></ul>
+<h3>Flux 3 — Créer une culture avec des tags (écriture imbriquée + N:M + transaction)</h3>
+<p>Bouton « Sauvegarder » de la modale culture → <code>jardin.component.ts:260</code> <code>createCulture(...)</code> → <code>jardin.handlers.ts:123-141</code> :</p>
+<pre><code class="lang-ts">db.culture.create({
+  data: {
+    ...data,
+    dateSemisPrevue: toDate(dateSemisPrevue)!,   // ISO string → Date
+    tags: { create: tags.map(libelle =&gt; ({
+      tag: { connectOrCreate: { where: { libelle }, create: { libelle } } }
+    })) },
+  },
+  include: includeCulture,
+});</code></pre>
+<p><strong>SQL (dans une transaction) :</strong></p>
+<pre><code class="lang-sql">BEGIN;
+INSERT INTO "Culture" ("dateSemisPrevue","dateRecoltePrevue","planteId","parcelleId","statutId",...)
+  VALUES (?,?,?,?,?,...) RETURNING *;             -- id de la nouvelle culture
+-- pour chaque tag : connectOrCreate
+SELECT "id" FROM "Tag" WHERE "libelle" = ?;        -- existe ?
+INSERT INTO "Tag" ("libelle") VALUES (?) RETURNING *;   -- si absent
+INSERT INTO "CultureTag" ("cultureId","tagId") VALUES (?, ?);
+-- include : relit la culture + plante + statut + tags + recoltes
+COMMIT;</code></pre>
+<p><strong>Trois points d'or pour l'oral :</strong></p>
+<ul><li><strong><code>connectOrCreate</code></strong> = « relie au tag existant, sinon crée-le » → évite les doublons grâce à <code>Tag.libelle @unique</code>.</li><li><strong>Tout est dans une transaction</strong> : si une étape échoue, rien n'est écrit (atomicité — le « A » d'ACID).</li><li><strong>Conversion de dates</strong> : les DTOs traversent l'IPC en <strong>chaînes ISO</strong> (un <code>&lt;input type="date"&gt;</code> renvoie <code>"2026-03-15"</code>). Le handler les reconvertit en <code>Date</code> via <code>toDate()</code> avant Prisma (<code>jardin.handlers.ts:35-38</code>).</li></ul>
+<h3>Flux 4 — Modifier les tags d'une culture (remplacement complet)</h3>
+<p><code>jardin.handlers.ts:158-163</code> :</p>
+<pre><code class="lang-ts">tags: { deleteMany: {}, create: [...] }</code></pre>
+<p><strong>SQL :</strong></p>
+<pre><code class="lang-sql">DELETE FROM "CultureTag" WHERE "cultureId" = ?;   -- on vide les liens existants
+-- puis on recrée les liens (connectOrCreate comme au flux 3)</code></pre>
+<p>Choix assumé : <strong>on remplace toute la liste</strong> plutôt que de calculer un diff ajout/retrait. Plus simple, suffisant ici, et la PK composite empêche les doublons.</p>
+<h3>Flux 5 — Drag &amp; drop d'une parcelle sur la grille (update ciblé)</h3>
+<p><code>jardin.component.ts:85-97</code> <code>onDrop</code> → <code>updateParcelle({ id, posX, posY })</code> → <code>jardin.handlers.ts:98-106</code>. <strong>SQL :</strong> <code>UPDATE "Parcelle" SET "posX" = ?, "posY" = ? WHERE "id" = ?;</code> La grille 4×4 est un <code>computed</code> (<code>grille</code>, lignes 60-69) qui place chaque parcelle selon <code>posX/posY</code> ; après l'update on met à jour le signal <code>parcelles</code> et le <code>computed</code> recalcule la grille. <strong>Réactivité de bout en bout sans recharger la page.</strong></p>
+<h3>Flux 6 — Supprimer une parcelle (cascade)</h3>
+<p><code>parcelles:delete</code> → <code>db.parcelle.delete({ where: { id } })</code>. <strong>SQL :</strong> <code>DELETE FROM "Parcelle" WHERE "id" = ?;</code> <strong>Effet en chaîne</strong> (grâce aux <code>ON DELETE CASCADE</code>) : SQLite supprime les <code>Culture</code> de la parcelle, ce qui cascade vers leurs <code>Recolte</code>, <code>Journal</code> et lignes <code>CultureTag</code>. Une seule instruction, suppression propre de tout le sous-arbre.</p>
+<h3>Flux 7 — Supprimer un référentiel encore utilisé (RESTRICT + gestion d'erreur visible)</h3>
+<p>Page Paramètres, bouton ✕ sur « Légume » → <code>categoriesStock:delete</code> (ou typePlantes, etc.). <strong>SQL :</strong> <code>DELETE FROM "CategorieStock" WHERE "id" = ?;</code> Si des <code>StockItem</code> y font référence, la contrainte <code>ON DELETE RESTRICT</code> fait <strong>échouer</strong> la requête (SQLite renvoie une erreur de contrainte de clé étrangère, Prisma lève une erreur). Le composant l'<strong>attrape et l'affiche</strong> (<code>parametres.component.ts:75-88</code>) :</p>
+<pre><code class="lang-ts">const isFk = err?.message?.includes('Foreign key') || err?.message?.includes('foreign key');
+s.erreur = isFk ? `Impossible de supprimer : cette valeur est encore utilisée.` : `Erreur lors de la suppression.`;</code></pre>
+<p><strong>C'est mon meilleur exemple de gestion d'erreur métier remontée jusqu'à l'utilisateur.</strong> (Commit <code>9c0eb20 "Show deletion error for referenced items"</code>.)</p>
+<h3>Flux 8 — Import Wikipedia (appel réseau externe, hors IPC)</h3>
+<p>Modale « Ajouter une plante » → bouton « Rechercher » → <code>plantes.component.ts:79</code> <code>rechercherWikipedia()</code> → <code>wikipedia.service.ts</code>.</p>
+<ul><li><code>fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/&lt;nom&gt;")</code>, puis si besoin Wikidata pour le nom latin (propriété <strong>P225</strong>, <em>taxon name</em>).</li><li>Le résultat <strong>pré-remplit le formulaire réactif</strong> (<code>form.patchValue({...})</code>).</li><li><strong>Aucune base touchée</strong> ici : c'est juste de l'aide à la saisie. La plante n'est persistée qu'au clic « Sauvegarder » (flux create classique).</li><li><strong>Honnêteté</strong> : cet appel part <strong>directement du renderer</strong> (et non via un handler IPC du main). C'est une entorse à la philosophie Electron, déjà notée dans mon README. Voir §11.</li></ul>
+<div class="page-break"></div>
+<h2>8. La couche Angular, concept par concept (avec emplacements)</h2>
+<h3>8.1 Composants standalone (≥ 3 exigés → 9 présents)</h3>
+<p>Tous les composants ont <code>standalone: true</code> : <code>App</code> (<code>app.ts</code>), <code>NavbarComponent</code>, <code>DashboardComponent</code>, <code>JardinComponent</code>, <code>PlantesComponent</code>, <code>PlanteCardComponent</code>, <code>StockComponent</code>, <code>JournalComponent</code>, <code>ParametresComponent</code>. <strong>Plus de composants <code>NgModule</code> du tout</strong> — c'est l'approche moderne Angular : chaque composant déclare ses propres <code>imports</code>.</p>
+<h3>8.2 TypeScript : interfaces</h3>
+<ul><li><code>Plante</code>, <code>TypePlante</code>, <code>CreatePlanteDto</code>, <code>UpdatePlanteDto</code> (<code>plante.service.ts</code>), <code>JournalEntry</code>, <code>StockItem</code>, <code>CultureFull</code>, <code>ParcelleFull</code>, etc.</li><li>Les types « source de vérité » vivent dans <code>src/shared/ipc/</code> et sont <strong>réexportés</strong> par les services (<code>export type { ... }</code>) pour que les composants ne dépendent que du service.</li></ul>
+<h3>8.3 Signals (état local réactif)</h3>
+<p>Partout : <code>signal&lt;StockItem[]&gt;([])</code>, <code>recherche = signal('')</code>, <code>modalOuvert = signal(false)</code>… Mise à jour via <code>.set(...)</code> et <strong><code>.update(liste =&gt; ...)</code></strong> (ex. <code>stock.component.ts:110</code> <code>this.stocks.update(liste =&gt; liste.map(...))</code>). Lecture dans le template en <strong>appelant</strong> le signal : <code>{{ stocks() }}</code>.</p>
+<h3>8.4 Computed (au moins 1 → une douzaine)</h3>
+<ul><li><code>dashboard</code> : <code>cultures</code>, <code>totalRecoltes</code>, <code>alertes</code>, <code>parStatut</code>, <code>prochainsSevis</code>, <code>prochainesRecoltes</code>.</li><li><code>stock</code> : <code>stocksFiltres</code>. <code>plantes</code> : <code>plantesFiltrees</code>. <code>jardin</code> : <code>grille</code>. <code>journal</code> : <code>cultures</code>, <code>entreesFiltrees</code>.</li><li><strong>Pédagogie</strong> : un <code>computed</code> se <strong>recalcule automatiquement</strong> quand un des signals qu'il lit change, et <strong>met en cache</strong> sinon. Ex. <code>stocksFiltres</code> dépend de <code>stocks()</code>, <code>recherche()</code> et <code>filtreCategorie()</code> ; taper dans la recherche refiltre la liste sans aucun appel base.</li></ul>
+<h3>8.5 effect() (bonus — présent 3×)</h3>
+<ul><li><code>dashboard.component.ts:31-34</code> : warn console quand des stocks passent sous le seuil.</li><li><code>stock.component.ts:47-51</code> : warn quand des articles sont épuisés.</li><li><code>journal.component.ts:61-64</code> : <strong>remet la recherche à zéro</strong> dès qu'on change le filtre de culture (effet de bord réactif).</li><li>Pédagogie : <code>effect</code> sert aux <strong>effets de bord</strong> (log, synchro), pas à produire une valeur (ça, c'est <code>computed</code>).</li></ul>
+<h3>8.6 @for / @if / @empty</h3>
+<p>Nouvelle syntaxe de control flow partout. Ex. <code>stock.component.html</code> : <code>@for (item of stocksFiltres(); track item.id) { … } @empty { … }</code>, <code>@if (enAlerte(item)) { … }</code>. Le <strong><code>track</code></strong> (sur <code>item.id</code>) permet à Angular de réutiliser les nœuds DOM au lieu de tout recréer — performance + état préservé.</p>
+<h3>8.7 Service + injection de dépendances (DI) + Singleton</h3>
+<ul><li>Tous les services : <code>@Injectable({ providedIn: 'root' })</code> → <strong>une seule instance</strong> partagée dans toute l'app (singleton). Si deux composants injectent <code>JardinService</code>, c'est le <strong>même</strong> objet.</li><li>Injection par la fonction <strong><code>inject()</code></strong> : <code>private jardinService = inject(JardinService)</code> (style moderne, pas de constructeur).</li><li><strong>Séparation des responsabilités</strong> : les services ne font <em>que</em> l'accès données (appels IPC) ; les composants gèrent l'état d'UI et orchestrent. C'est le critère « logique métier dans les services » des consignes.</li></ul>
+<h3>8.8 input() / output() (composant parent ↔ enfant)</h3>
+<p><code>PlanteCardComponent</code> (composant « muet » de présentation) :</p>
+<pre><code class="lang-ts">plante    = input.required&lt;Plante&gt;();   // données parent → enfant
+editer    = output&lt;Plante&gt;();           // événements enfant → parent
+supprimer = output&lt;number&gt;();</code></pre>
+<p>Le parent <code>plantes.component.html:21-25</code> :</p>
+<pre><code class="lang-html">&lt;app-plante-card [plante]="plante" (editer)="ouvrirEdition($event)" (supprimer)="supprimer($event)" /&gt;</code></pre>
+<p>C'est l'exemple canonique <strong>smart/dumb component</strong> : <code>PlantesComponent</code> détient la logique, <code>PlanteCardComponent</code> affiche et <strong>remonte</strong> les intentions via <code>output</code>.</p>
+<h3>8.9 Formulaires : les <strong>trois</strong> approches présentes</h3>
+<table><thead><tr><th>Approche</th><th>Où</th><th>Comment</th></tr></thead><tbody><tr><td><strong>Réactif</strong> (<code>ReactiveFormsModule</code>)</td><td><code>plantes.component.ts:26-38</code></td><td><code>fb.group({ nom: ['', Validators.required], … })</code>, lié au template par <code>[formGroup]</code> + <code>formControlName</code>, bouton désactivé si <code>form.invalid</code></td></tr><tr><td><strong>Template</strong> (<code>FormsModule</code>, <code>[(ngModel)]</code>)</td><td><code>parametres.component.html:13</code></td><td><code>[(ngModel)]="s.libelle"</code> (two-way binding)</td></tr><tr><td><strong>Template signal-friendly</strong> (<code>FormsModule</code>)</td><td><code>journal.component.html</code></td><td><code>[ngModel]="formContenu()"</code> + <code>(ngModelChange)="formContenu.set($event)"</code></td></tr><tr><td><strong>Signal + binding natif</strong></td><td><code>stock</code>, <code>jardin</code></td><td><code>[value]</code> + <code>(input)="formStock.update(...)"</code> sans module de forms</td></tr></tbody></table>
+<blockquote>La consigne demande « au moins un formulaire avec <code>ReactiveFormsModule</code> » → c'est <code>PlantesComponent</code>, avec validations. Les autres montrent que je maîtrise aussi <code>ngModel</code> et l'approche full-signals.</blockquote>
+<h3>8.10 Routing + RouterLink</h3>
+<ul><li><code>app.routes.ts</code> : <strong>7 routes</strong> (<code>''</code> redirige vers <code>dashboard</code>, puis dashboard/jardin/plantes/stock/journal/parametres). Bien plus que les 2 exigées.</li><li><code>app.config.ts</code> : <code>provideRouter(routes)</code>.</li><li><code>app.ts</code> : <code>&lt;router-outlet /&gt;</code> dans le template.</li><li><code>navbar.component.html</code> : <code>routerLink="/jardin"</code> + <strong><code>routerLinkActive="active"</code></strong> (surligne l'onglet courant). <code>NavbarComponent</code> importe <code>RouterLink, RouterLinkActive</code>.</li></ul>
+<div class="page-break"></div>
+<h2>9. Checklist de conformité aux consignes</h2>
+<h3>9.1 Angular (annexe 5.1)</h3>
+<table><thead><tr><th>Notion</th><th>Statut</th><th>Preuve</th></tr></thead><tbody><tr><td>≥ 3 composants standalone</td><td>✅ (9)</td><td>tous les <code>@Component({ standalone: true })</code></td></tr><tr><td>Interfaces TypeScript</td><td>✅</td><td><code>shared/ipc/*</code>, <code>plante.service.ts</code></td></tr><tr><td>Signals</td><td>✅</td><td><code>signal(...)</code> dans tous les composants</td></tr><tr><td>Computed</td><td>✅ (≥12)</td><td><code>dashboard</code>, <code>stock</code>, <code>plantes</code>, <code>jardin</code>, <code>journal</code></td></tr><tr><td>@for / @if</td><td>✅</td><td>tous les templates (+ <code>@empty</code>)</td></tr><tr><td>Service + DI</td><td>✅</td><td>6 services, <code>inject(...)</code></td></tr><tr><td>Singleton</td><td>✅</td><td><code>providedIn: 'root'</code></td></tr><tr><td>input()</td><td>✅</td><td><code>plante-card</code> <code>input.required&lt;Plante&gt;()</code></td></tr><tr><td>output()</td><td>✅</td><td><code>plante-card</code> <code>output&lt;Plante&gt;()</code> / <code>output&lt;number&gt;()</code></td></tr><tr><td>Formulaire réactif</td><td>✅</td><td><code>plantes.component.ts</code> (<code>fb.group</code> + <code>Validators</code>)</td></tr><tr><td>Routage ≥ 2 routes + outlet</td><td>✅ (7)</td><td><code>app.routes.ts</code>, <code>provideRouter</code>, <code>&lt;router-outlet&gt;</code></td></tr><tr><td>RouterLink</td><td>✅</td><td><code>navbar</code> (<code>routerLink</code> + <code>routerLinkActive</code>)</td></tr><tr><td>effect() (bonus)</td><td>✅</td><td><code>dashboard</code>, <code>stock</code>, <code>journal</code></td></tr></tbody></table>
+<h3>9.2 Prisma / SQL (annexe 5.2)</h3>
+<table><thead><tr><th>Notion</th><th>Statut</th><th>Preuve</th></tr></thead><tbody><tr><td>≥ 7 modèles</td><td>✅ (12)</td><td><code>prisma/schema/*.prisma</code></td></tr><tr><td>Clé primaire</td><td>✅</td><td><code>id Int @id @default(autoincrement())</code> partout</td></tr><tr><td>Relation 1:N + FK + onDelete</td><td>✅</td><td><code>Parcelle</code>→<code>Culture</code>, etc.</td></tr><tr><td>Table de jonction N:M</td><td>✅</td><td><code>CultureTag</code> <code>@@id([cultureId, tagId])</code></td></tr><tr><td>ON DELETE</td><td>✅</td><td>Cascade / Restrict / SetNull (cf. §5.5)</td></tr><tr><td>JOIN / include</td><td>✅</td><td><code>include</code> dans tous les handlers</td></tr><tr><td>Agrégat / comptage dans l'UI</td><td>✅</td><td><code>plante.count()</code> → carte Dashboard</td></tr><tr><td>CRUD complet</td><td>✅</td><td>Plante, Culture, StockItem, Journal, Parcelle, refs</td></tr><tr><td>Champs optionnels</td><td>✅</td><td>nombreux <code>String?</code> / <code>Float?</code> / <code>DateTime?</code></td></tr><tr><td>Enum (bonus)</td><td>✅</td><td><code>Exposition</code></td></tr></tbody></table>
+<h3>9.3 Architecture Electron (annexe 5.3) &amp; qualité (2.3)</h3>
+<table><thead><tr><th>Notion</th><th>Statut</th><th>Preuve / nuance</th></tr></thead><tbody><tr><td>Main process</td><td>✅</td><td><code>main.ts</code> crée la <code>BrowserWindow</code>, charge l'app</td></tr><tr><td>Preload (contextBridge)</td><td>✅</td><td><code>preload.ts</code> expose <code>electronAPI</code></td></tr><tr><td>Renderer via preload uniquement</td><td>⚠️</td><td>OUI sauf <code>wikipedia.service.ts</code> (fetch direct, cf. §11)</td></tr><tr><td>IPC <code>handle</code>/<code>invoke</code></td><td>✅</td><td>handlers + preload</td></tr><tr><td><code>npm run start</code> unique</td><td>✅</td><td><code>concurrently</code> Angular + Electron</td></tr><tr><td>SQLite local, pas de cloud</td><td>✅</td><td><code>provider = "sqlite"</code>, <code>dev.db</code> (Wikipedia = enrichissement optionnel)</td></tr><tr><td>TypeScript strict</td><td>⚠️</td><td>renderer <strong>strict</strong> ; <code>tsconfig.json</code> racine seulement <code>noImplicitAny</code> (cf. §11)</td></tr><tr><td>Modularité (1 responsabilité, logique en service)</td><td>✅</td><td>services = IPC, composants = UI</td></tr><tr><td>Nommage explicite</td><td>✅</td><td><code>parcelleSelectionnee</code>, <code>stocksFiltres</code>… (pas de <code>data</code>/<code>temp</code>)</td></tr><tr><td>Gestion d'erreurs (try/catch IPC)</td><td>⚠️</td><td>présent partout <strong>sauf</strong> <code>plante.handlers.ts</code> (cf. §11)</td></tr><tr><td>Documentation</td><td>✅</td><td>README complet + JSDoc sur quasi toutes les fonctions</td></tr><tr><td>Schéma draw.io</td><td>✅</td><td><code>gardenOs_Bd.drawio</code> (+ PDF)</td></tr><tr><td>Script de seed</td><td>✅</td><td><code>prisma/seed.ts</code> (référentiels, plantes, parcelles, cultures, récoltes, journal, stock)</td></tr></tbody></table>
+<div class="page-break"></div>
+<h2>10. Questions d'oral probables + réponses modèles</h2>
+<h3>Architecture &amp; Electron</h3>
+<p><strong>Q : Pourquoi 3 processus ? Pourquoi ne pas mettre Prisma dans Angular ?</strong> R : Prisma utilise des API Node.js (système de fichiers, module natif <code>better-sqlite3</code>) indisponibles dans un navigateur. Le renderer est un environnement Chromium sandboxé. On place donc tout l'accès données dans le <strong>main</strong> (vrai Node) et on communique par <strong>IPC</strong>. Avantage sécurité : le renderer ne peut pas toucher au disque directement.</p>
+<p><strong>Q : Que fait exactement le preload ? Pourquoi pas exposer <code>ipcRenderer</code> directement ?</strong> R : Le preload est le <strong>pont contrôlé</strong>. Avec <code>contextIsolation: true</code>, on ne peut passer du main au renderer que via <code>contextBridge</code>. Exposer <code>ipcRenderer</code> brut laisserait le renderer appeler <em>n'importe quel</em> canal ; à la place j'expose une <strong>liste blanche</strong> de méthodes précises (<code>'stocks:delete'</code>, etc.). Surface d'attaque minimale.</p>
+<p><strong>Q : Comment les données traversent-elles l'IPC ? Et les dates ?</strong> R : <code>ipcRenderer.invoke</code> sérialise les arguments avec l'algorithme de <strong>clonage structuré</strong>. Les objets simples passent tels quels. Pour les dates, je les fais transiter en <strong>chaînes ISO</strong> (le <code>&lt;input type=date&gt;</code> produit déjà une string) et le handler les reconvertit en <code>Date</code> avec <code>toDate()</code> avant de les donner à Prisma — c'est explicite et sans ambiguïté.</p>
+<p><strong>Q : <code>npm run start</code> fait quoi ?</strong> R : Via <code>concurrently</code>, il lance <strong>deux</strong> process : (1) le serveur de dev Angular sur <code>:4200</code>, (2) <code>wait-on</code> attend que <code>:4200</code> réponde puis démarre <code>electron-forge start</code>. En dev la fenêtre charge <code>localhost:4200</code> (hot reload) ; en prod elle charge le HTML buildé.</p>
+<h3>Prisma &amp; SQL</h3>
+<p><strong>Q : Montrez une relation 1:N et le SQL correspondant.</strong> R : <code>Culture.parcelleId</code> + <code>@relation(... onDelete: Cascade)</code>. En SQL : <code>FOREIGN KEY ("parcelleId") REFERENCES "Parcelle"("id") ON DELETE CASCADE</code>. Le côté « 1 » (<code>Parcelle</code>) n'a qu'un tableau virtuel <code>cultures Culture[]</code>, pas de colonne.</p>
+<p><strong>Q : Expliquez votre table de jonction. Pourquoi <code>@@id([cultureId, tagId])</code> ?</strong> R : C'est la décomposition du N:M <code>Culture</code>↔<code>Tag</code>. La <strong>PK composite</strong> garantit qu'un même couple (culture, tag) ne peut exister qu'une fois — pas de doublon de lien. En SQL : <code>PRIMARY KEY ("cultureId","tagId")</code> + deux FK.</p>
+<p><strong>Q : Que génère un <code>include</code> ? Est-ce un JOIN ?</strong> R : Logiquement, oui, c'est une jointure sur la FK. En pratique, par défaut Prisma exécute <strong>plusieurs SELECT</strong> et assemble côté client ; on peut forcer un vrai JOIN avec <code>relationLoadStrategy: "join"</code>. Le résultat est le même objet imbriqué.</p>
+<p><strong>Q : Où est l'agrégat ?</strong> R : <code>db.plante.count()</code> (<code>SELECT COUNT(*)</code>) affiché sur le Dashboard. Je distingue ça des stats calculées en JS par des <code>computed</code> sur des données déjà chargées.</p>
+<p><strong>Q : Pourquoi la migration d'enum est-elle vide ?</strong> R : SQLite n'a pas d'enum natif → Prisma le stocke en <code>TEXT</code>. La colonne <code>exposition</code> était déjà <code>TEXT</code>, donc passer de <code>String?</code> à <code>enum Exposition?</code> ne change pas le SQL, seulement la validation côté TypeScript/Prisma.</p>
+<p><strong>Q : Que se passe-t-il si je supprime un « Statut » utilisé ? Et une parcelle ?</strong> R : Statut → <code>RESTRICT</code> : la suppression <strong>échoue</strong>, l'erreur de FK est attrapée et affichée à l'utilisateur (Paramètres). Parcelle → <code>CASCADE</code> : SQLite supprime en chaîne les cultures, et donc leurs récoltes, entrées de journal et liens de tags.</p>
+<p><strong>Q : Vos suppressions imbriquées sont-elles atomiques ?</strong> R : Oui. Une <code>create</code>/<code>update</code> avec écritures imbriquées (tags) est encapsulée par Prisma dans une <strong>transaction</strong> : tout ou rien.</p>
+<h3>Angular</h3>
+<p><strong>Q : Différence <code>signal</code> / <code>computed</code> / <code>effect</code> ?</strong> R : <code>signal</code> = source d'état mutable. <code>computed</code> = valeur <strong>dérivée</strong>, recalculée à la demande et mise en cache. <code>effect</code> = <strong>effet de bord</strong> déclenché à chaque changement des signals lus (log, reset…). Règle : si ça produit une valeur affichée → <code>computed</code> ; si ça agit sur le monde extérieur → <code>effect</code>.</p>
+<p><strong>Q : Pourquoi <code>providedIn: 'root'</code> ?</strong> R : Ça enregistre le service comme <strong>singleton</strong> au niveau racine : une instance unique, tree-shakable, partagée par DI dans toute l'app.</p>
+<p><strong>Q : Comment parent et enfant communiquent (plantes / plante-card) ?</strong> R : <code>input.required&lt;Plante&gt;()</code> descend la donnée, <code>output&lt;Plante&gt;()</code>/<code>output&lt;number&gt;()</code> remontent les événements <code>editer</code>/<code>supprimer</code>. Le parent garde la logique, l'enfant ne fait qu'afficher et émettre.</p>
+<p><strong>Q : Pourquoi le <code>track</code> dans <code>@for</code> ?</strong> R : Il identifie chaque élément (par <code>id</code>) pour qu'Angular réutilise les nœuds DOM existants au lieu de tout reconstruire — meilleures perfs et préservation de l'état (focus, scroll).</p>
+<p><strong>Q : Mise à jour « optimiste » de la liste — pourquoi ne pas recharger depuis la base ?</strong> R : Après un create/update/delete, je mets à jour le <strong>signal</strong> localement (<code>.update(...)</code>) avec l'objet renvoyé par le handler. Évite un aller-retour réseau et garde l'UI instantanée. La base reste la source de vérité au prochain chargement.</p>
+<h3>Qualité / transversal</h3>
+<p><strong>Q : Comment gérez-vous les erreurs ?</strong> R : Deux niveaux. (1) Côté <strong>handler</strong> : <code>try/catch</code> autour de l'appel Prisma, log <code>console.error('[canal]', err)</code> puis <code>throw</code> pour propager au front. (2) Côté <strong>composant</strong> : <code>try/catch</code> sur l'appel service ; cas métier (FK RESTRICT en Paramètres) affiché à l'utilisateur.</p>
+<p><strong>Q : Pourquoi <code>dev.db</code> est-il versionné alors que <code>.gitignore</code> ignore <code>*.db</code> ?</strong> R : Volontaire : la base <strong>pré-remplie</strong> (via le seed) est livrée pour que l'app tourne immédiatement à l'évaluation. Le client Prisma généré (<code>/generated/prisma</code>), lui, est ignoré → d'où l'étape <code>npx prisma generate</code> du README.</p>
+<div class="page-break"></div>
+<h2>11. Points faibles assumés et comment les défendre</h2>
+<blockquote>L'examinateur valorise l'honnêteté lucide. Voici les angles morts du code et la <strong>bonne</strong> façon d'en parler. Mon README contient déjà une section « Remise en question » qui en couvre une partie.</blockquote>
+<ol><li><strong><code>tsconfig.json</code> racine pas en <code>strict</code>.</strong> Seul <code>noImplicitAny: true</code> y est activé ; en revanche <code>renderer/tsconfig.json</code> est <strong>pleinement strict</strong> (<code>strict</code>, <code>strictTemplates</code>…). Défense : <em>« le gros du code applicatif — Angular — est strict ; le tsconfig du main/preload pourrait l'être aussi en une ligne, c'est un oubli de configuration, pas un problème de typage : mes handlers et DTOs sont typés explicitement. »</em> Correctif : ajouter <code>"strict": true</code> au tsconfig racine.</li></ol>
+<ol><li><strong><code>plante.handlers.ts</code> n'a pas de <code>try/catch</code></strong> alors que tous les autres handlers en ont. Défense : <em>« incohérence assumée ; les 5 autres fichiers de handlers respectent la consigne. C'est un correctif d'une minute : entourer chaque appel. »</em></li></ol>
+<ol><li><strong>Wikipedia appelé directement depuis le renderer</strong> (<code>wikipedia.service.ts</code>, <code>fetch</code>) au lieu de passer par un handler IPC. C'est une entorse à « le renderer ne parle qu'au preload », et techniquement un accès réseau externe. Défense : <em>« c'est de l'enrichissement de saisie optionnel, aucune donnée n'est stockée dans le cloud ; la persistance reste 100 % SQLite local. Idéalement je déplacerais l'appel dans un handler <code>plantes:scrapeWikipedia</code> côté main. »</em> (Le type <code>plantes:scrapeWikipedia</code> est d'ailleurs <strong>déclaré</strong> dans <code>electron.d.ts:16</code> mais jamais implémenté — vestige du plan initial.)</li></ol>
+<ol><li><strong><code>StatutCulture</code> est une table de référence</strong> alors que ses valeurs sont fixes : ça aurait pu être un <strong>enum</strong> (comme <code>Exposition</code>). Défense déjà écrite dans le README : table = une jointure + un handler + une section Paramètres « pour rien ». Je sais faire le lien : enum = <code>TEXT</code> validé ; table = FK + <code>RESTRICT</code>. Contre-argument valable : la table permet à l'utilisateur d'<strong>ajouter</strong> ses propres statuts sans migration.</li></ol>
+<ol><li><strong>Pas de contrainte <code>@unique</code> sur <code>Parcelle.nom</code></strong> : deux parcelles peuvent porter le même nom. Correctif : ajouter <code>@unique</code>.</li></ol>
+<ol><li><strong><code>app.html</code> est du code mort</strong> : c'est le template par défaut d'Angular (logo, « Hello, {{title()}} »), mais <code>App</code> utilise un <strong>template inline</strong> (<code>app.ts:13-18</code>). Le fichier n'est jamais chargé. À supprimer.</li></ol>
+<ol><li><strong><code>app.spec.ts</code> échouerait</strong> : test par défaut qui attend un <code>h1</code> « Hello, app » absent de mon <code>App</code>. Les tests sont en <strong>bonus</strong> et non lancés par <code>npm run start</code>, donc sans impact sur la recevabilité ; à nettoyer ou réécrire si je veux le bonus « tests unitaires ».</li></ol>
+<ol><li><strong><code>ParametresComponent</code> utilise <code>ChangeDetectorRef</code></strong> + mutation d'objets ordinaires, au lieu de signals comme partout ailleurs. Défense : <em>« ça marche, mais c'est le composant le moins cohérent avec le reste ; je le migrerais en signals pour l'uniformité. »</em></li></ol>
+<ol><li><strong>Dashboard <code>parStatut</code> code en dur les libellés</strong> (<code>'Planifiée'</code>, <code>'En cours'</code>…). Si l'utilisateur renomme un statut en Paramètres, le regroupement du dashboard ne le voit plus. Couplage au seed à connaître.</li></ol>
+<blockquote>Astuce d'oral : si on vous pointe un de ces défauts, <strong>ne vous braquez pas</strong> — reconnaissez-le, expliquez l'impact réel (souvent faible), donnez le correctif. C'est exactement ce que vaut un développeur.</blockquote>
+<hr>
+<h2>12. Annexe</h2>
+<h3>12.1 Glossaire express</h3>
+<ul><li><strong>IPC</strong> (<em>Inter-Process Communication</em>) : échange de messages entre le renderer et le main (<code>invoke</code>/<code>handle</code>).</li><li><strong>contextBridge / contextIsolation</strong> : mécanisme Electron qui expose une API du preload au renderer tout en isolant les contextes JS.</li><li><strong>ORM</strong> : <em>Object-Relational Mapping</em> — Prisma traduit mes objets/appels en SQL.</li><li><strong>DTO</strong> : objet de transfert décrivant la forme exacte des données échangées.</li><li><strong>Driver adapter</strong> (Prisma 7) : <code>@prisma/adapter-better-sqlite3</code>, le pilote concret vers SQLite.</li><li><strong>Migration</strong> : script SQL versionné décrivant un changement de schéma.</li><li><strong>Cascade / Restrict / SetNull</strong> : actions <code>ON DELETE</code> propagées par SQLite.</li><li><strong>Signal / Computed / Effect</strong> : primitives de réactivité d'Angular.</li><li><strong>connectOrCreate</strong> : « relie si existe, sinon crée » (utilisé pour les tags).</li></ul>
+<h3>12.2 Commandes utiles (les connaître)</h3>
+<table><thead><tr><th>Commande</th><th>Effet</th></tr></thead><tbody><tr><td><code>npm run start</code></td><td>Lance Angular (:4200) + Electron</td></tr><tr><td><code>npm install</code> puis <code>npm install --prefix renderer</code></td><td>Dépendances racine + renderer</td></tr><tr><td><code>npx prisma generate</code></td><td>Régénère le client dans <code>generated/prisma</code></td></tr><tr><td><code>npx prisma migrate deploy</code></td><td>Applique les migrations (reconstruit la base)</td></tr><tr><td><code>npx prisma db seed</code></td><td>Peuple la base (<code>prisma/seed.ts</code>)</td></tr><tr><td><code>npx @electron/rebuild -f -w better-sqlite3</code></td><td>Recompile le module natif pour Electron</td></tr><tr><td><code>npx prisma studio</code></td><td>Explorateur visuel de la base</td></tr></tbody></table>
+<h3>12.3 Plan de démonstration suggéré (le jour J)</h3>
+<ol><li>Lancer l'app, montrer le <strong>Dashboard</strong> (parler du <code>count()</code> = agrégat SQL).</li><li>Aller dans <strong>Jardin</strong> : créer une parcelle, faire un <strong>drag &amp; drop</strong> (→ <code>UPDATE posX/posY</code>), créer une <strong>culture avec 2 tags</strong> (→ transaction + N:M <code>connectOrCreate</code>).</li><li>Montrer une <strong>récolte</strong>, puis <strong>supprimer la parcelle</strong> → expliquer la <strong>cascade</strong>.</li><li><strong>Paramètres</strong> : tenter de supprimer un référentiel utilisé → message d'erreur (<strong>RESTRICT</strong> attrapé).</li><li><strong>Plantes</strong> : import <strong>Wikipedia</strong> → <code>patchValue</code> du <strong>formulaire réactif</strong> → sauvegarde.</li><li>Ouvrir <code>prisma/schema/</code> et un fichier de <strong>migration</strong> pour montrer le SQL réel (FK, <code>ON DELETE</code>).</li></ol>
+<blockquote>Gardez ce document ouvert pendant la préparation, pas pendant l'oral. Le but est de pouvoir <strong>raconter</strong> chaque trajet sans le lire.</blockquote>
+<div class="page-break"></div>
+<h2>13. Défense des points faibles — réponses d'oral prêtes</h2>
+<blockquote>Cette section complète le §11. Le §11 <strong>liste</strong> les faiblesses et leur logique ; ici, ce sont les <strong>phrases à dire à voix haute</strong> quand l'examinateur attaque. Règle d'or en 4 temps : <strong>« Oui, c'est exact » → la cause → l'impact réel → le correctif.</strong> Ne jamais nier, ne jamais bluffer. Un examinateur qui voit que vous connaissez le défaut mieux que lui vous donne la note de compréhension. Le réflexe gagnant : ramener chaque critique à du concret que vous maîtrisez — <strong>le SQL équivalent</strong>, <strong>la frontière de processus</strong>, ou <strong>le compromis assumé</strong>.</blockquote>
+<h3>🔴 1. « Il manque le <code>try/catch</code> dans <code>plante.handlers.ts</code> »</h3>
+<p>C'est votre meilleur coup : la défense <strong>prouve</strong> votre maîtrise de l'IPC.</p>
+<p><strong>Réponse :</strong></p>
+<blockquote>« Oui, c'est une incohérence : mes 5 autres fichiers de handlers ont le <code>try/catch</code>, pas celui-là. Mais ça ne crée pas de trou dans la gestion d'erreur : quand un <code>ipcMain.handle</code> asynchrone rejette, Electron <strong>sérialise automatiquement l'erreur et la repropage au <code>ipcRenderer.invoke()</code></strong> du renderer. Or tous mes composants entourent l'appel service d'un <code>try/catch</code> — l'erreur Prisma est donc bien attrapée, côté UI. Le <code>try/catch</code> du handler, lui, sert surtout au <strong>log serveur</strong> (<code>console.error('[canal]', err)</code>) ; c'est ce log que j'ai oublié ici, pas la gestion. Je l'ajouterais pour la cohérence. »</blockquote>
+<p><strong>S'il insiste (« mais la consigne l'exige ») :</strong> « Vous avez raison sur la consigne, je le concède. Je distingue simplement le respect formel — que je rate sur ce fichier — du risque fonctionnel, qui est nul puisque l'erreur remonte jusqu'au composant. »</p>
+<h3>🔴 2. « Ton TypeScript n'est pas en <code>strict</code> »</h3>
+<p><strong>Réponse :</strong></p>
+<blockquote>« Au niveau du <code>tsconfig.json</code> racine, je n'active que <code>noImplicitAny</code>, c'est exact. En revanche le renderer Angular — le gros du code — est en <code>strict</code> complet, avec même <code>strictTemplates</code>. Ce qui me manque côté main, c'est surtout <code>strictNullChecks</code>. En pratique mon code main/preload est typé explicitement via les DTOs de <code>shared/ipc</code>, donc il n'y a pas d'<code>any</code> qui traîne. C'est une ligne à ajouter : <code>"strict": true</code>. »</blockquote>
+<p><strong>S'il ouvre <code>db.service.ts</code> et voit le <code>as any</code> :</strong> « Ça, c'est un <code>any</code> <strong>explicite et assumé</strong> : le typage de l'adaptateur <code>better-sqlite3</code>, encore en preview dans Prisma 7, ne s'aligne pas parfaitement avec le constructeur du <code>PrismaClient</code>. Je caste volontairement pour passer l'adaptateur ; c'est une limite connue de Prisma, pas un relâchement de mon typage. »</p>
+<h3>🔴 3. « Wikipedia, tu l'appelles directement depuis le renderer »</h3>
+<p>Ici vous <strong>retournez la règle</strong> en montrant que vous savez <em>pourquoi</em> elle existe.</p>
+<p><strong>Réponse :</strong></p>
+<blockquote>« Oui, et je l'ai même écrit dans mon README. Mais creusons la règle : "le renderer ne parle qu'au preload" existe pour une raison de <strong>sécurité</strong> — empêcher le renderer d'accéder aux ressources système (disque, base). Un <code>fetch</code> HTTP vers une API publique, c'est exactement ce que le Chromium du renderer fait nativement, en sandbox : ça ne franchit <strong>aucune</strong> barrière de sécurité, contrairement à un accès fichier. Le risque réel est donc nul. Et sur "pas de cloud" : la consigne vise la <strong>persistance</strong> — toutes mes données sont en SQLite local. Wikipedia n'est qu'une aide à la saisie optionnelle ; API coupée = je remplis le formulaire à la main, l'app fonctionne. L'architecture propre serait un handler <code>plantes:scrapeWikipedia</code> dans le main — le type est d'ailleurs déjà déclaré dans <code>electron.d.ts</code>, c'était mon intention de départ. »</blockquote>
+<h3>🟠 4. « Et si je renomme un statut dans Paramètres ? » (le bug latent du dashboard)</h3>
+<p>C'est le <strong>seul</strong> qui peut vous piéger en direct. Préparez-le, et si possible <strong>devancez-le</strong>.</p>
+<p><strong>Réponse :</strong></p>
+<blockquote>« Bonne remarque, et c'est lié à un autre de mes choix. Mon dashboard regroupe les cultures par libellé de statut codé en dur — <code>'Planifiée'</code>, <code>'En cours'</code>… Donc si on renomme un statut, le regroupement ne suit pas et la culture disparaît de cette colonne. La cause profonde, c'est d'avoir fait <code>StatutCulture</code> en <strong>table éditable</strong> plutôt qu'en <code>enum</code> : avec un enum les valeurs seraient garanties, et coder en dur serait légitime. Le correctif propre : itérer sur <code>this.statuts()</code> chargés depuis la base et regrouper par <code>statutId</code>, pas par libellé. »</blockquote>
+<p><strong>Move de pro :</strong> si on vous demande « quel point amélioreriez-vous ? », sortez <strong>celui-là vous-même</strong>. Nommer spontanément votre bug le plus subtil = maturité d'ingénieur, et ça oriente la discussion sur un terrain que vous avez préparé.</p>
+<h3>🟡 5. « <code>app.html</code> et <code>app.spec.ts</code>, c'est le template par défaut »</h3>
+<p>Réponse courte — ne vous attardez pas, sur-défendre du cosmétique ferait suspect.</p>
+<p><strong>Réponse :</strong></p>
+<blockquote>« Vestiges du template Angular de départ. <code>app.html</code> n'est jamais chargé — <code>App</code> utilise un template <em>inline</em> dans <code>app.ts</code> — et <code>app.spec</code> teste le composant par défaut. Zéro impact fonctionnel, mais j'aurais dû faire le ménage. Le type <code>plantes:scrapeWikipedia</code> dans <code>electron.d.ts</code> est dans le même cas : un reste de mon plan initial. »</blockquote>
+<h3>🟢 6. Modélisation : <code>@unique</code> manquant + table vs enum</h3>
+<p><strong>Réponse (Parcelle.nom) :</strong></p>
+<blockquote>« Il manque un <code>@unique</code> sur le nom de parcelle, donc deux parcelles peuvent porter le même nom. Sans gravité — chaque parcelle a son <code>id</code> et sa position sur la grille — mais plus rigoureux avec la contrainte. En SQL, ça ajouterait un <code>CREATE UNIQUE INDEX "Parcelle_nom_key" ON "Parcelle"("nom");</code>. »</blockquote>
+<p><strong>Réponse (Statut : table ou enum ?) :</strong></p>
+<blockquote>« Choix discutable, que j'assume des deux côtés. Pour la table : l'utilisateur peut <strong>ajouter ses propres statuts sans migration</strong>. Contre : l'enum aurait évité une jointure, un handler et une section Paramètres. La différence SQL : un enum, c'est une colonne <strong><code>TEXT</code> validée par Prisma</strong> ; une table, c'est une <strong>clé étrangère avec <code>ON DELETE RESTRICT</code></strong>. À refaire, je mettrais Statut en enum et je garderais les tables pour ce qui est vraiment ouvert, comme <code>TypePlante</code>. »</blockquote>
+<h3>🟢 7. <code>ParametresComponent</code> utilise <code>ChangeDetectorRef</code></h3>
+<p><strong>Réponse :</strong></p>
+<blockquote>« C'est mon seul composant qui n'utilise pas de signals : je stocke mes sections dans des objets ordinaires que je mute, donc Angular ne voit pas le changement tout seul — d'où le <code>cdr.detectChanges()</code> manuel. Un signal aurait déclenché le rafraîchissement automatiquement. C'est incohérent avec le reste du projet ; je le réécrirais en signals. »</blockquote>
+<hr>
+<p><strong>À retenir :</strong> tant que votre phrase contient un <em>« voici pourquoi »</em> et un <em>« voici le correctif »</em>, vous gagnez — même sur un défaut. Une faiblesse expliquée avec lucidité vaut mieux qu'une fonctionnalité que vous ne savez pas justifier.</p>
+<div class="page-break"></div>
+<h2>14. Questions réellement posées à l'oral — réponses + exemples</h2>
+<blockquote>Questions effectivement tombées. Pour chacune : une <strong>définition claire</strong>, un <strong>exemple tiré de GardenOS</strong>, et le <strong>SQL</strong> quand c'est pertinent. C'est la section à réviser en priorité.</blockquote>
+<h3>A. SQL pur</h3>
+<h4>Q1 — Quelle est la différence entre une clé primaire (PK) et une clé étrangère (FK) ?</h4>
+<ul><li><strong>PK (clé primaire)</strong> : identifie <strong>de façon unique</strong> chaque ligne d'une table. Une seule par table, toujours <code>NOT NULL</code> + <code>UNIQUE</code>. Chez moi : <code>id Int @id @default(autoincrement())</code> → en SQL <code>"id" INTEGER PRIMARY KEY AUTOINCREMENT</code>.</li><li><strong>FK (clé étrangère)</strong> : une colonne qui <strong>référence la PK d'une autre table</strong>. Elle matérialise le lien et garantit l'<strong>intégrité référentielle</strong> (impossible de pointer vers un id inexistant). Elle peut être <code>NULL</code> (si la relation est optionnelle) et peut <strong>se répéter</strong> (plusieurs lignes vers le même parent).</li></ul>
+<p><strong>Exemple GardenOS :</strong> dans <code>Culture</code>, <code>id</code> est la <strong>PK</strong> ; <code>parcelleId</code> est une <strong>FK</strong> vers <code>Parcelle.id</code>.</p>
+<pre><code class="lang-sql">CREATE TABLE "Culture" (
+  "id"         INTEGER PRIMARY KEY AUTOINCREMENT,   -- PK
+  "parcelleId" INTEGER NOT NULL,                    -- FK
+  CONSTRAINT "Culture_parcelleId_fkey"
+    FOREIGN KEY ("parcelleId") REFERENCES "Parcelle"("id") ON DELETE CASCADE
+);</code></pre>
+<p><strong>À savoir :</strong> une PK peut être <strong>composite</strong> — <code>CultureTag</code> a <code>@@id([cultureId, tagId])</code> → <code>PRIMARY KEY ("cultureId","tagId")</code>. Là, deux colonnes qui sont <strong>chacune une FK</strong> forment ensemble la PK.</p>
+<h4>Q2 — À quoi sert <code>ON DELETE CASCADE</code> ?</h4>
+<p>Quand on supprime la ligne <strong>parent</strong>, le SGBD supprime <strong>automatiquement</strong> les lignes <strong>enfants</strong> qui la référencent. Ça évite les lignes orphelines.</p>
+<p><strong>Exemple GardenOS :</strong> je supprime une <code>Parcelle</code> → SQLite supprime ses <code>Culture</code>, ce qui cascade vers leurs <code>Recolte</code>, <code>Journal</code> et liens <code>CultureTag</code>. <strong>Une seule instruction</strong>, tout le sous-arbre part proprement.</p>
+<pre><code class="lang-sql">DELETE FROM "Parcelle" WHERE "id" = 1;
+-- déclenche en chaîne (grâce aux ON DELETE CASCADE) :
+-- DELETE des Culture de la parcelle → DELETE de leurs Recolte/Journal/CultureTag</code></pre>
+<p><strong>Les 3 comportements que j'utilise</strong> (à opposer) :</p>
+<ul><li><code>CASCADE</code> : supprime les enfants (Culture→Recolte/Journal).</li><li><code>RESTRICT</code> (défaut FK obligatoire) : <strong>bloque</strong> la suppression si des enfants existent (supprimer un <code>StatutCulture</code> utilisé échoue).</li><li><code>SET NULL</code> (défaut FK optionnelle) : met la FK à <code>NULL</code> (supprimer un <code>TypeSol</code> → la parcelle a <code>typeSolId = NULL</code>).</li></ul>
+<blockquote>Sur SQLite, ça ne marche que si <code>PRAGMA foreign_keys = ON</code>. C'est le moteur SQLite qui propage, pas Prisma.</blockquote>
+<h4>Q3 — Qu'est-ce qu'un JOIN ? Expliquer la différence entre tous les types.</h4>
+<p>Un <strong>JOIN</strong> combine les lignes de deux tables sur une condition (souvent <code>FK = PK</code>).</p>
+<table><thead><tr><th>Type</th><th>Ce qu'il garde</th></tr></thead><tbody><tr><td><strong>INNER JOIN</strong></td><td>Seulement les lignes qui ont une correspondance <strong>des deux côtés</strong></td></tr><tr><td><strong>LEFT (OUTER) JOIN</strong></td><td><strong>Toutes</strong> les lignes de gauche + les correspondances à droite (<code>NULL</code> si aucune)</td></tr><tr><td><strong>RIGHT (OUTER) JOIN</strong></td><td>Toutes celles de droite + correspondances à gauche (<code>NULL</code> sinon)</td></tr><tr><td><strong>FULL (OUTER) JOIN</strong></td><td>Toutes les lignes des <strong>deux</strong> côtés (<code>NULL</code> là où ça ne matche pas)</td></tr><tr><td><strong>CROSS JOIN</strong></td><td>Produit cartésien : <strong>chaque</strong> ligne de gauche × chaque ligne de droite</td></tr></tbody></table>
+<p><strong>Exemple GardenOS</strong> (parfait car <code>StockItem.planteId</code> est optionnel) :</p>
+<pre><code class="lang-sql">-- INNER JOIN : seuls les articles LIÉS à une plante (ex: "Graines de tomate")
+SELECT s."nom", p."nom"
+FROM "StockItem" s
+INNER JOIN "Plante" p ON p."id" = s."planteId";
+
+-- LEFT JOIN : TOUS les articles ; plante = NULL pour "Arrosoir 10L" et "Compost"
+SELECT s."nom", p."nom"
+FROM "StockItem" s
+LEFT JOIN "Plante" p ON p."id" = s."planteId";</code></pre>
+<p><strong>Le lien avec mon code :</strong> mon handler <code>stocks:getAll</code> fait <code>include: { categorie: true, plante: true }</code>. <code>categorie</code> est obligatoire → comportement type <strong>INNER</strong> ; <code>plante</code> est optionnelle → comportement type <strong>LEFT</strong> (l'article reste affiché même sans plante liée).</p>
+<blockquote>Détail SQLite : <code>INNER</code>, <code>LEFT</code> et <code>CROSS</code> sont supportés depuis toujours ; <code>RIGHT</code> et <code>FULL OUTER</code> seulement depuis SQLite 3.39 (2022). Un <code>RIGHT JOIN</code> peut toujours se réécrire en <code>LEFT JOIN</code> en inversant les tables.</blockquote>
+<h4>Q4 — Différence entre <code>WHERE</code> et <code>HAVING</code> ?</h4>
+<ul><li><strong><code>WHERE</code></strong> filtre les <strong>lignes</strong> <em>avant</em> le regroupement. Il <strong>ne peut pas</strong> utiliser de fonction d'agrégat (<code>COUNT</code>, <code>SUM</code>…).</li><li><strong><code>HAVING</code></strong> filtre les <strong>groupes</strong> <em>après</em> <code>GROUP BY</code>. Il <strong>peut</strong> porter sur un agrégat.</li></ul>
+<p><strong>Exemple GardenOS</strong> (« combien de cultures par statut, et ne garder que les statuts avec plus d'1 culture ») :</p>
+<pre><code class="lang-sql">SELECT "statutId", COUNT(*) AS nb
+FROM "Culture"
+WHERE "dateSemisReelle" IS NOT NULL   -- filtre les lignes AVANT regroupement
+GROUP BY "statutId"
+HAVING COUNT(*) &gt; 1;                  -- filtre les groupes APRÈS agrégation</code></pre>
+<p><strong>Lien avec mon code :</strong> mon dashboard fait ce regroupement « cultures par statut » <strong>en JavaScript</strong> (un <code>computed</code> <code>parStatut</code>). En SQL pur, ce serait exactement <code>GROUP BY "statutId"</code> (+ <code>HAVING</code> pour filtrer). Et mon compteur du dashboard, <code>db.plante.count()</code>, c'est <code>SELECT COUNT(*) FROM "Plante"</code> — l'agrégat le plus simple.</p>
+<h3>B. ORM / Prisma</h3>
+<h4>Q5 — Qu'est-ce qu'un ORM ?</h4>
+<p>**ORM = <em>Object-Relational Mapping</em><strong>. Une couche qui fait correspondre les </strong>tables<strong> de la base à des </strong>objets/modèles<strong> dans le code. J'écris des appels typés (<code>db.plante.findMany(...)</code>) et l'ORM </strong>génère le SQL** à ma place, mappe les résultats en objets, et gère les migrations.</p>
+<ul><li><strong>Avantages</strong> : sécurité de typage (TypeScript), productivité, pas d'injection SQL par défaut (requêtes paramétrées), portable entre SGBD.</li><li><strong>Inconvénients</strong> : l'abstraction peut <strong>masquer</strong> des requêtes coûteuses (problème N+1) ; moins de contrôle fin que du SQL écrit à la main.</li></ul>
+<p>Mon ORM ici, c'est <strong>Prisma</strong>, branché sur SQLite via l'adaptateur <code>@prisma/adapter-better-sqlite3</code>.</p>
+<h4>Q6 — Différence entre <code>prisma migrate</code> et <code>prisma generate</code> ?</h4>
+<ul><li><strong><code>prisma migrate</code></strong> agit sur la <strong>BASE</strong> : il crée et applique des fichiers <strong>SQL de migration</strong> (du DDL : <code>CREATE TABLE</code>, <code>ALTER TABLE</code>…) pour faire évoluer le schéma. Mes 7 migrations sont dans <code>prisma/migrations/</code>.</li><li><strong><code>prisma generate</code></strong> agit sur le <strong>CODE</strong> : il (re)génère le <strong>client TypeScript</strong> dans <code>generated/prisma</code> à partir du schéma. <strong>Aucune</strong> modification de la base — juste l'API typée que j'importe (<code>PrismaClient</code>).</li></ul>
+<p><strong>Mnémonique :</strong> <em>migrate = la base · generate = le code.</em> C'est pour ça que le README demande <code>prisma generate</code> après l'install (le client n'est pas versionné, il est dans <code>.gitignore</code>).</p>
+<h4>Q7 — Comment déclare-t-on une relation 1-N dans Prisma ?</h4>
+<p>Le côté « <strong>N</strong> » porte la <strong>clé étrangère</strong> + le <code>@relation</code> ; le côté « <strong>1</strong> » a juste un <strong>tableau</strong> (champ virtuel, pas une colonne).</p>
+<p><strong>Exemple exact GardenOS</strong> (<code>Parcelle</code> 1 — N <code>Culture</code>) :</p>
+<pre><code class="lang-prisma">model Parcelle {
+  id       Int       @id @default(autoincrement())
+  cultures Culture[]                                   // côté "1" : tableau virtuel
+}
+model Culture {
+  parcelleId Int                                       // la FK (côté "N")
+  parcelle   Parcelle @relation(fields: [parcelleId], references: [id], onDelete: Cascade)
+}</code></pre>
+<p><code>fields: [parcelleId]</code> = la colonne FK locale ; <code>references: [id]</code> = la PK ciblée. En SQL ça devient le <code>FOREIGN KEY ("parcelleId") REFERENCES "Parcelle"("id")</code>.</p>
+<h4>Q8 — À quoi sert <code>seed.ts</code> ?</h4>
+<p>À <strong>peupler la base</strong> avec un jeu de données initial / de test, lancé via <code>npx prisma db seed</code>. Utile pour : démarrer sur un état connu, faire une démo, tester.</p>
+<p><strong>Mon <code>seed.ts</code></strong> : il <strong>nettoie</strong> d'abord les tables dans l'ordre des dépendances (<code>deleteMany</code>), puis crée les référentiels (types, statuts, catégories), 5 plantes, 3 parcelles, des tags, des cultures (dont une avec tags via <code>connect</code>), des récoltes, des entrées de journal et des articles de stock. C'est ce qui garnit <code>dev.db</code>, que je livre déjà rempli.</p>
+<h3>C. Electron</h3>
+<h4>Q9 — Quels sont les 2 processus principaux d'Electron ? Pourquoi ne pas appeler Prisma depuis le renderer ?</h4>
+<ul><li><strong>Main</strong> (processus Node.js) : accès complet à l'OS, fenêtres, fichiers, modules natifs. C'est lui qui détient Prisma.</li><li><strong>Renderer</strong> (processus Chromium) : affiche l'UI (mon app Angular), <strong>sandboxé</strong> comme un onglet de navigateur.</li></ul>
+<p><strong>Pourquoi pas Prisma dans le renderer :</strong> (1) <strong>technique</strong> — le renderer n'a pas les API Node (<code>fs</code>, etc.) ni le module natif <code>better-sqlite3</code> ; (2) <strong>sécurité</strong> — avec <code>contextIsolation: true</code> / <code>nodeIntegration: false</code>, le renderer ne peut pas toucher au disque. Donc tout l'accès données vit dans le <strong>main</strong>, et le renderer le sollicite par <strong>IPC</strong>.</p>
+<h4>Q10 — C'est quoi un <em>preload</em> ? (et : « le preload autorise le frontend à communiquer avec le backend »)</h4>
+<p>Un **script qui s'exécute <em>avant</em> le chargement de la page<strong> du renderer, dans un contexte privilégié qui voit à la fois un sous-ensemble de Node </strong>et<strong> le futur <code>window</code>. Son rôle : </strong>exposer une API contrôlée<strong> du backend (main) vers le frontend (renderer), via <code>contextBridge</code>. C'est le </strong>pont<strong> — et la </strong>seule** porte d'entrée du renderer vers le main.</p>
+<p><strong>Mon <code>preload.ts</code></strong> déclare une liste blanche de canaux :</p>
+<pre><code class="lang-ts">contextBridge.exposeInMainWorld('electronAPI', {
+  'stocks:getAll': ()     =&gt; ipcRenderer.invoke('stocks:getAll'),
+  'stocks:delete': (data) =&gt; ipcRenderer.invoke('stocks:delete', data),
+  // … un canal par opération
+});</code></pre>
+<p>Côté renderer, mes services appellent <code>window.electronAPI['stocks:delete']({ id })</code>.</p>
+<h4>Q11 — C'est quoi le <em>context bridge</em> ?</h4>
+<p><code>contextBridge.exposeInMainWorld(nom, objet)</code> est l'API Electron qui <strong>injecte de façon sûre</strong> un objet du preload dans le <code>window</code> du renderer, <strong>malgré</strong> <code>contextIsolation: true</code>. Cette isolation sépare les contextes JavaScript (preload vs page) pour qu'une faille dans la page ne puisse pas atteindre les privilèges du preload. Sans le contextBridge, le renderer ne « verrait » rien de ce que le preload définit.</p>
+<h4>Q12 — Pourquoi SQLite ?</h4>
+<ul><li><strong>Léger</strong> : une bibliothèque C embarquée, pas de serveur de base à installer/lancer (<em>serverless</em>).</li><li><strong>Portable</strong> : toute la base tient dans <strong>un seul fichier</strong> (<code>dev.db</code>) qu'on peut copier, versionner, livrer.</li><li><strong>Zéro configuration</strong>, parfait pour une <strong>application de bureau mono-utilisateur</strong>.</li><li><strong>Imposé par la consigne</strong> (<code>provider = "sqlite"</code>).</li></ul>
+<blockquote>Limite à connaître : SQLite n'est pas taillé pour de <strong>fortes écritures concurrentes multi-utilisateurs</strong> (il verrouille au niveau du fichier). Pour une app desktop locale, c'est idéal.</blockquote>
+<h4>Q13 — Que se passe-t-il si on active <code>nodeIntegration</code> ? (réponse en un mot : <code>true</code>)</h4>
+<p>Si <code>nodeIntegration: true</code>, le <strong>renderer obtient l'accès complet à Node.js</strong> (<code>require</code>, <code>fs</code>, <code>process</code>…). <strong>Danger majeur</strong> : une simple faille <strong>XSS</strong> dans la page donnerait à un attaquant un accès complet à la machine (lecture/écriture de fichiers, exécution…). C'est pourquoi je le laisse à <strong><code>false</code></strong> + <code>contextIsolation: true</code> : le renderer ne peut faire <strong>que</strong> ce que mon preload expose.</p>
+<h4>Q14 — Revoir <code>ipcMain.handle</code> et le fameux <code>_e</code></h4>
+<p><code>ipcMain.handle('canal', listener)</code> enregistre, côté <strong>main</strong>, le <strong>gestionnaire</strong> d'un canal appelé par <code>ipcRenderer.invoke('canal', data)</code> côté renderer. Le <code>listener</code> reçoit <code>(event, ...args)</code> : le <strong>1er paramètre est l'événement IPC</strong> (<code>IpcMainInvokeEvent</code> : <code>sender</code>, etc.), souvent <strong>inutile</strong>.</p>
+<p><strong>Le <code>_e</code> / <code>_event</code></strong> : quand je n'utilise pas ce 1er paramètre, je le préfixe d'un <strong>underscore</strong> pour signaler « <strong>volontairement ignoré</strong> » (convention, + évite l'avertissement « unused parameter »).</p>
+<pre><code class="lang-ts">// refs.handlers.ts — l'événement est ignoré (_e), je n'utilise que le DTO
+ipcMain.handle('typePlantes:create', async (_e, dto) =&gt; db.typePlante.create({ data: dto }));
+
+// plante.handlers.ts — j'ignore l'event, je déstructure l'id de l'argument
+ipcMain.handle('plantes:delete', async (_event, { id }) =&gt; { await db.plante.delete({ where: { id } }); });</code></pre>
+<h4>Q15 — <code>main.ts</code> / <code>before-quit</code> : couper la connexion à la base (<code>prisma.$disconnect</code>)</h4>
+<p>À la fermeture de l'app, il faut <strong>fermer proprement</strong> la connexion Prisma/SQLite pour libérer le fichier et éviter un verrou résiduel. <strong>C'est déjà dans mon projet</strong> :</p>
+<pre><code class="lang-ts">// main.ts
+app.on('before-quit', async () =&gt; { await disconnectDb(); });
+
+// db.service.ts
+export async function disconnectDb() {
+  if (_prisma) { await _prisma.$disconnect(); _prisma = null; }
+}</code></pre>
+<p>Je peux donc l'annoncer : <em>« la connexion est fermée sur <code>before-quit</code> via <code>$disconnect()</code> »</em>. Mon client Prisma est par ailleurs un <strong>singleton</strong> (<code>getDb()</code> ne crée l'instance qu'une fois).</p>
+<h4>Q16 — À quoi sert le <code>.env</code> ?</h4>
+<p>À stocker les <strong>variables d'environnement</strong> (configuration, URLs, secrets) <strong>en dehors du code</strong>, pour séparer config et code et <strong>ne pas versionner</strong> les valeurs sensibles (il est dans <code>.gitignore</code>).</p>
+<p><strong>Mon <code>.env</code></strong> : <code>DATABASE_URL="file:./dev.db"</code>. Il est chargé par <code>dotenv</code> (<code>import 'dotenv/config'</code> dans <code>seed.ts</code> et <code>prisma.config.ts</code>), et Prisma lit <code>DATABASE_URL</code> pour savoir <strong>où se trouve la base</strong>.</p>
+<h3>D. Angular</h3>
+<h4>Q17 — Pourquoi un <code>signal</code> et pas un <code>computed</code> ? Que fait le signal ?</h4>
+<ul><li><strong><code>signal</code></strong> = une <strong>source d'état modifiable</strong>. Je le lis en l'appelant (<code>recherche()</code>) et je le change avec <strong><code>.set(...)</code></strong> ou <strong><code>.update(...)</code></strong>. À utiliser quand la valeur est <strong>posée directement</strong> (saisie utilisateur, réponse d'un appel, ouverture d'une modale).</li><li><strong><code>computed</code></strong> = une valeur <strong>dérivée, en lecture seule</strong>, <strong>recalculée automatiquement</strong> quand les signals qu'elle lit changent (et <strong>mise en cache</strong> sinon). On <strong>ne peut pas</strong> lui faire <code>.set()</code>.</li></ul>
+<p><strong>Règle :</strong> si je dois <em>écrire</em> la valeur → <code>signal</code>. Si elle se <em>déduit</em> d'autres → <code>computed</code>.</p>
+<p><strong>Exemple GardenOS :</strong></p>
+<pre><code class="lang-ts">recherche      = signal('');                 // SET par l'utilisateur (input)
+filtreCategorie = signal&lt;number | null&gt;(null);
+stocks         = signal&lt;StockItem[]&gt;([]);    // SET par la réponse IPC
+
+// dérivé → computed (jamais .set, recalculé seul)
+stocksFiltres = computed(() =&gt;
+  this.stocks().filter(s =&gt;
+    s.nom.toLowerCase().includes(this.recherche().toLowerCase())
+  )
+);</code></pre>
+<p>Si je faisais <code>stocksFiltres</code> en signal, je devrais le <strong>recalculer à la main</strong> à chaque frappe — le <code>computed</code> le fait tout seul.</p>
+<h4>Q18 — Comment exposer les fonctions du backend vers le frontend (renderer) ?</h4>
+<p>La chaîne complète (4 maillons) :</p>
+<ol><li><strong>Main</strong> enregistre un gestionnaire : <code>ipcMain.handle('stocks:delete', (_e, {id}) =&gt; db.stockItem.delete({where:{id}}))</code>.</li><li><strong>Preload</strong> expose un canal via <code>contextBridge</code> : <code>'stocks:delete': (d) =&gt; ipcRenderer.invoke('stocks:delete', d)</code>.</li><li><strong><code>electron.d.ts</code></strong> type <code>window.electronAPI</code> pour le renderer (sinon ce serait <code>any</code>).</li><li><strong>Renderer</strong> appelle <code>window.electronAPI['stocks:delete']({ id })</code>, encapsulé dans un <strong>service</strong> Angular.</li></ol>
+<p>C'est exactement le trajet de mon « flux complet » (§4) : composant → service → preload → handler → Prisma → SQLite, puis retour.</p>
+<h4>Q19 — Qu'est-ce qu'une route Angular ?</h4>
+<p>Une <strong>route</strong> associe un <strong>chemin d'URL</strong> à un <strong>composant</strong>, affiché dans le <code>&lt;router-outlet&gt;</code>. Je déclare les routes dans <code>app.routes.ts</code>, je les active avec <code>provideRouter(routes)</code> (dans <code>app.config.ts</code>), et je navigue avec <code>routerLink</code>.</p>
+<p><strong>Mon <code>app.routes.ts</code></strong> (7 routes) :</p>
+<pre><code class="lang-ts">export const routes: Routes = [
+  { path: '',          redirectTo: 'dashboard', pathMatch: 'full' }, // redirection
+  { path: 'dashboard', component: DashboardComponent },
+  { path: 'jardin',    component: JardinComponent },
+  // … plantes, stock, journal, parametres
+];</code></pre>
+<p>La barre de nav utilise <code>routerLink="/jardin"</code> + <code>routerLinkActive="active"</code> pour surligner l'onglet courant.</p>
+<h3>E. Consigne transversale de l'examinateur</h3>
+<blockquote><strong>« Chaque requête Prisma doit être comprise et pouvoir être refaite en SQL. »</strong></blockquote>
+<p>C'est le cœur de l'épreuve. Tout est outillé dans ce dossier : la <strong>table de correspondance</strong> Prisma → SQL (§6) et les <strong>8 flux « bouton → SQL »</strong> (§7). Le réflexe à avoir devant n'importe quel appel :</p>
+<table><thead><tr><th>Méthode Prisma</th><th>Mot-clé SQL</th></tr></thead><tbody><tr><td><code>findMany</code> / <code>findUnique</code></td><td><code>SELECT … (WHERE …) (ORDER BY …)</code></td></tr><tr><td><code>create</code></td><td><code>INSERT INTO … VALUES … RETURNING *</code></td></tr><tr><td><code>update</code></td><td><code>UPDATE … SET … WHERE …</code></td></tr><tr><td><code>delete</code> / <code>deleteMany</code></td><td><code>DELETE FROM … WHERE …</code></td></tr><tr><td><code>count</code></td><td><code>SELECT COUNT(*) …</code></td></tr><tr><td><code>include</code></td><td><code>JOIN</code> sur la clé étrangère</td></tr><tr><td><code>connectOrCreate</code></td><td><code>SELECT</code> (existe ?) puis <code>INSERT</code> sinon</td></tr><tr><td>écriture imbriquée</td><td>le tout dans une <strong>transaction</strong> <code>BEGIN … COMMIT</code></td></tr></tbody></table>
+<p>Entraînez-vous à prendre <strong>un handler au hasard</strong> et à dire son SQL à voix haute.</p>
+<hr>
+<p><em>Bonne défense. Le code est solide ; l'enjeu est de prouver que vous le comprenez ligne à ligne.</em></p>
+</body></html>
