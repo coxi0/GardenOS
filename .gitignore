@@ -100,3 +100,6 @@ out/
 
 # Claude Code
 .claude/
+
+# Défense orale (documents privés)
+DEFENSE_ORALE_GardenOS.*
