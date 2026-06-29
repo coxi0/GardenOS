@@ -103,3 +103,4 @@ out/
 
 # Défense orale (documents privés)
 DEFENSE_ORALE_GardenOS.*
+build-defense-pdf.mjs
